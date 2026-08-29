@@ -92,3 +92,49 @@ export TPM2TOOLS_TCTI="swtpm:host=127.0.0.1,port=2321"
 tpm2_startup -c
 tpm2_pcrread sha256:0,1,2,3
 ```
+
+### Demons
+
+```
+echo -n "boo" > message.txt
+
+sha256sum message.txt
+
+MSG_HASH=$(sha256sum message.txt | awk '{print $1}')
+echo "Message hash: $MSG_HASH"
+
+tpm2_pcrread sha256:16
+
+tpm2_pcrextend 16:sha256=$MSG_HASH
+
+tpm2_pcrread sha256:16
+
+EXPECTED=$(echo -n "0000000000000000000000000000000000000000000000000000000000000000$MSG_HASH" | xxd -r -p | sha256sum | awk '{print $1}')
+echo "Expected PCR value: $EXPECTED"
+
+TPM_PCR=$(tpm2_pcrread sha256:16 | grep 16 | awk '{print $3}' | sed 's/^0x//')
+echo "TPM PCR value:      $TPM_PCR"
+
+[ "$EXPECTED" == "$TPM_PCR" ] && echo "MATCH — hash verified in TPM" || echo "MISMATCH"
+```
+
+```
+tpm2_pcrreset 16
+
+tpm2_pcrread sha256:16
+```
+Note: only certain PCRs (typically 16 and 23) are resettable at runtime — this is by design, so software can't fake a clean measurement log. PCRs 0-15 can't be reset this way; to zero those, wipe the swtpm state entirely:
+
+```
+docker stop swtpm-arch
+docker rm swtpm-arch
+docker volume rm swtpm-arch-state
+
+docker run -d --name swtpm-arch \
+  -p 2321:2321 -p 2322:2322 \
+  -v swtpm-arch-state:/var/lib/swtpm-state \
+  swtpm-arch
+
+tpm2_startup -c
+tpm2_pcrread sha256:0,1,2,3,16
+```
