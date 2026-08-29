@@ -1,7 +1,11 @@
-FROM ubuntu:24.04
-RUN apt-get update && apt-get install -y swtpm swtpm-tools tpm2-tools && rm -rf /var/lib/apt/lists/*
+FROM archlinux:base
+
+RUN pacman -Syu --noconfirm --needed swtpm tpm2-tools tpm2-tss && \
+    pacman -Scc --noconfirm
+
 RUN mkdir -p /var/lib/swtpm-state
 EXPOSE 2321 2322
+
 ENTRYPOINT ["swtpm", "socket", \
   "--tpmstate", "dir=/var/lib/swtpm-state", \
   "--ctrl", "type=tcp,port=2322", \
