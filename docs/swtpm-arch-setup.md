@@ -1,7 +1,6 @@
-# Setup and Testing documentation
+# Setup and Testing
 
-I use Arch btw , so it's the base for 'swtpm' installed directly from the pacman repo 
-NO SOURCE BUILD !!
+I use Arch Linux, with `swtpm` installed directly from the official Pacman repository. No source compilation or manual build is required.
 
 ```Dockerfile
 FROM archlinux:base
@@ -28,7 +27,7 @@ docker build -t swtpm-arch .
 ```bash
 docker run -d --name swtpm-arch -p 2321:2321 -p 2322:2322 -v swtpm-arch-state:/var/lib/swtpm/tpmstate swtpm-arch
 ```
-### For testing install the tpm2-tools on the host (I use Arch btw)
+### Install TPM2 Tools for Testing
 ```bash
 sudo pacman -Syu --needed tpm2-tools tpm2-tss
 ```
