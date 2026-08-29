@@ -32,8 +32,7 @@ docker build -t swtpm-arch .
 ```bash
 docker run -d --name swtpm-arch -p 2321:2321 -p 2322:2322 -v swtpm-arch-state:/var/lib/swtpm/tpmstate swtpm-arch
 ```
-
-## For testing install the tpm2-tools on the host (I use Arch btw)
+# For testing install the tpm2-tools on the host (I use Arch btw)
 ```bash
 sudo pacman -Syu --needed tpm2-tools tpm2-tss
 ```
