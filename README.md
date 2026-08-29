@@ -61,71 +61,34 @@ Artificial Intelligence (AI) agents are increasingly being deployed to automate 
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 ---
-### FlowChart
+### Installation
 
 ```
-┌─────────────────┐
-│ AI Agent Boots  │
-└────────┬────────┘
-         ▼
-┌─────────────────┐     ┌─────────────────┐
-│ Measure Code    │────▶│ tpm2_pcrread    │
-└────────┬────────┘     └─────────────────┘
-         ▼
-┌─────────────────┐     ┌─────────────────┐
-│ Generate Quote  │────▶│ tpm2_quote      │
-└────────┬────────┘     └─────────────────┘
-         ▼
-┌─────────────────┐     ┌─────────────────┐
-│ Send to Verifier│────▶│ HTTP/gRPC       │
-└────────┬────────┘     └─────────────────┘
-         ▼
-┌─────────────────┐
-│ Signature Valid?│
-└────────┬────────┘
-         │
-    ┌────┴────┐
-    │         │
-    ▼         ▼
-┌───────┐ ┌───────┐
-│ YES   │ │ NO    │
-└───┬───┘ └───┬───┘
-    │         │
-    ▼         ▼
-┌───────┐ ┌───────┐
-│ PCRs  │ │DENY   │
-│ Match?│ │       │
-└───┬───┘ └───────┘
-    │
-┌───┴───┐
-│       │
-▼       ▼
-YES     NO
-│       │
-▼       ▼
-┌───────┐ ┌───────┐
-│ALLOW  │ │DENY   │
-└───┬───┘ └───────┘
-    │
-    ▼
-┌─────────────────┐
-│ Runtime Monitor │
-└────────┬────────┘
-         ▼
-┌─────────────────┐
-│ Policy Check    │
-└────────┬────────┘
-         │
-    ┌────┴────┐
-    │         │
-    ▼         ▼
-┌───────┐ ┌───────┐
-│PASS   │ │FAIL   │
-└───┬───┘ └───┬───┘
-    │         │
-    ▼         ▼
-┌───────┐ ┌───────┐
-│ALLOW  │ │ALERT/ │
-│       │ │BLOCK  │
-└───────┘ └───────┘
+cat > Dockerfile <<'EOF'
+FROM archlinux:base
+
+RUN pacman -Syu --noconfirm --needed swtpm tpm2-tools tpm2-tss && \
+    pacman -Scc --noconfirm
+
+RUN mkdir -p /var/lib/swtpm-state
+EXPOSE 2321 2322
+
+ENTRYPOINT ["swtpm", "socket", \
+  "--tpmstate", "dir=/var/lib/swtpm-state", \
+  "--ctrl", "type=tcp,port=2322", \
+  "--server", "type=tcp,port=2321", \
+  "--flags", "not-need-init", \
+  "--tpm2", "--log", "level=1"]
+EOF
+
+docker build -t swtpm-arch .
+
+docker run -d --name swtpm-arch \
+  -p 2321:2321 -p 2322:2322 \
+  -v swtpm-arch-state:/var/lib/swtpm-state \
+  swtpm-arch
+
+export TPM2TOOLS_TCTI="swtpm:host=127.0.0.1,port=2321"
+tpm2_startup -c
+tpm2_pcrread sha256:0,1,2,3
 ```
