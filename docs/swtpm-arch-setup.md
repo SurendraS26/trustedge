@@ -1,6 +1,4 @@
-# swtpm on ARCH Linux (Docker) - Setup and Testing documentation
-
-## Dockerfile
+# Setup and Testing documentation
 
 I use Arch btw , so it's the base for 'swtpm' installed directly from the pacman repo 
 NO SOURCE BUILD !!
@@ -21,8 +19,6 @@ CMD ["socket", "--tpm2", \
     "--flags", "not-need-init", \
     "--tpmstate", "dir=/var/lib/swtpm/tpmstate"]
 ```
-
-## Build and Run the container
 
 ### Build the container
 ```bash
