@@ -31,6 +31,5 @@ docker run -d --name swtpm-arch -p 2321:2321 -p 2322:2322 -v swtpm-arch-state:/v
 ```bash
 sudo pacman -Syu --needed tpm2-tools tpm2-tss
 ```
-### Demonstration
 
 
