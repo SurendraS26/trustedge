@@ -42,6 +42,12 @@ https://github.com/SurendraS26/swtpm-arch-docker
 
 > Unix domain sockets and TCTI are kernel/library features, not standalone packages — TCTI comes bundled with `tpm2-tss`.
 
+### Desktop Alerting (Host)
+- libnotify (provides `notify-send`)
+- zenity
+- libcanberra (provides `canberra-gtk-play`, for alert sounds)
+> These trigger only on Deny + Alert events — visible popup, optional dialog, and a sound cue, on top of the SQLite audit log.
+
 ### Optional but good for version control so that we can revert back
 - `git`
 - `github-cli` (provides `gh`)
