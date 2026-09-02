@@ -42,7 +42,7 @@ https://github.com/SurendraS26/swtpm-arch-docker
 
 > Unix domain sockets and TCTI are kernel/library features, not standalone packages — TCTI comes bundled with `tpm2-tss`.
 
-### Optional but good for version control
+### Optional but good for version control so that we can revert back
 - `git`
 - `github-cli` (provides `gh`)
 
