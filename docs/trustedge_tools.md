@@ -1,51 +1,49 @@
-# TrustEdge — Required Tools & Technologies
+# trustedge - tools and packages
 
-## Phase 1: TPM Setup (Container 2)
-- Docker
-- Arch Linux (base image)
-- swtpm
-- tpm2-tools
-- tpm2-tss
+### C1 - Agent + Framework
+- `python`
+- `ollama`
+- `ollama-cuda` 
+- `python-requests`
+- `python-fastapi`
+- `python-yaml`
+- `python-cryptography`
+- `python-tpm2-pytss`
+- `tpm2-tools`
+- `sqlite`
+- `docker`
 
-## Phase 2: Interceptor
-- auditd
-- Python 3
-- hashlib (SHA-256)
+> Note: Qwen2.5-3B / Llama3.2-3B LLM's to be pulled via Ollama.
 
-## Phase 3: AI Agent
-- Python 3
-- Ollama
-- Qwen2.5-3B or Llama3.2-3B (model)
-- Docker
+### C2 - swtpm-arch-docker - ***SurendraS26***
 
-## Phase 4: Verifier
-- FastAPI
-- YAML
-- SQLite
-- tpm2-pytss
-- cryptography (Python library)
+<details>
+  <summary>Link here</summary>
+https://github.com/SurendraS26/swtpm-arch-docker
+</details>
 
-## Framework Components (Container 1)
-- Python 3
-- JSON / SQLite (policy rules, baseline store)
-- tpm2-pytss or tpm2-tools (via subprocess)
-- requests (HTTP client, for Ollama API calls)
+  - `docker`
+  - `linux`
+  - `linux-firmware`
+  - `base`
+  - `swtpm`
+  - `tpm2-tools`
+  - `tpm2-tss`
+> Note: No need to build this , refer the above github link 'swtpm-arch-docker'
 
-## Integration
-- docker-compose
-- Unix domain socket (`/tmp/swtpm.sock`)
-- TCTI (TPM Command Transmission Interface)
+### On Host Machine
+- `audit` (provides `auditd`)
+- `python`
+- `docker`
+- `docker-compose`
+- `docker-buildx`
+- `xz`
+- `coreutils` (provides `sha256sum`)
 
-## Documentation
-- Markdown
+> Unix domain sockets and TCTI are kernel/library features, not standalone packages — TCTI comes bundled with `tpm2-tss`.
 
-## Version Control / CI
-- Git
-- GitHub
-- GitHub Actions (multi-arch builds)
-- GitHub CLI (`gh`)
+### Optional but good for version control
+- `git`
+- `github-cli` (provides `gh`)
 
-## Supporting Utilities
-- xz (compression)
-- sha256sum
-- Docker Buildx
+> GitHub and GitHub Actions are hosted services, not pacman packages.
