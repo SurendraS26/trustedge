@@ -11,7 +11,7 @@ RUN pacman -Syu --noconfirm --needed \
 	audit \
 	libnotify \
 	zenity \
-	libcaberra \
+	libcanberra \
     && pacman -Scc --noconfirm \
     && rm -rf /var/cache/pacman/pkg/*
 
@@ -26,5 +26,5 @@ RUN chmod +x entrypoint.sh interceptor/audit_rules.sh
 # /var/log/audit/ - mounted from host (read-only)
 
 EXPOSE 8000
-ENTRYPOINT ["./entrypoint/sh"]
+ENTRYPOINT ["./entrypoint.sh"]
 
