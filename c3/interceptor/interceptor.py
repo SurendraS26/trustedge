@@ -1,14 +1,3 @@
-"""
-TrustEdge — Interceptor (auditd-based)
-Tails the Linux audit log for execve() events tagged with "trustedge_exec",
-extracts the executable path and PID, hashes the binary, checks it against
-the policy engine, and kills + alerts if not allowed.
-Requires:
-  - auditd running on host
-  - audit_rules.sh already applied
-  - /var/log/audit/audit.log mounted into the container (read-only)
-"""
-
 import os
 import re
 import signal
