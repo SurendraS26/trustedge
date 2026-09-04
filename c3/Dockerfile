@@ -12,6 +12,7 @@ RUN pacman -Syu --noconfirm --needed \
 	libnotify \
 	zenity \
 	libcanberra \
+	pkg-config \
     && pacman -Scc --noconfirm \
     && rm -rf /var/cache/pacman/pkg/*
 
