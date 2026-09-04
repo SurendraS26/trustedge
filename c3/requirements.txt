@@ -2,5 +2,4 @@ fastapi
 uvicorn
 requests
 cryptography
-tpm2-pytss
 
