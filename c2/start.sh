@@ -6,11 +6,11 @@ TPMSERVE="2321"
 TPMCTRL="2322"
 
 # Startup script (visual)
-
-echo "[*] Starting swtpm-arch-container}...."
-echo "[*] TPM running ip: 0.0.0.0"
-echo "server --> 0.0.0.0 , PORT=$TPMSERVE"
-echo "ctrl   --> 0.0.0.0 , PORT=$TPMCTRL"
+echo "[*] Starting swtpm Arch container"
+echo "[*] TPM will running in these below ip's only"
+ip -br addr show
+echo "server --> PORT=$TPMSERVE"
+echo "ctrl   --> PORT=$TPMCTRL"
 
 # Run swtpm (Own version is better than slop i feel alva)
 
