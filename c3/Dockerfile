@@ -13,6 +13,8 @@ RUN pacman -Syu --noconfirm --needed \
 	zenity \
 	libcanberra \
 	pkg-config \
+	gcc \
+	make \
     && pacman -Scc --noconfirm \
     && rm -rf /var/cache/pacman/pkg/*
 
