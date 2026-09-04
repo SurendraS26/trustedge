@@ -17,8 +17,8 @@ TPMCTRL="2322"
 
 # Startup script (visual)
 
-echo "[*] Starting swtpm-arch-container...."
-echo "[*] TPM running ip: 0.0.0.0"
+echo "${CYAN}[${PURPLE}*${CYAN}] Starting swtpm-arch-container${YELLOW}...."
+echo "${CYAN}[${PURPLE}*${CYAN}] TPM running ${RED}ip: 0.0.0.0"
 echo "server --> 0.0.0.0 , PORT=$TPMSERVE"
 echo "ctrl   --> 0.0.0.0 , PORT=$TPMCTRL"
 
