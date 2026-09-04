@@ -7,7 +7,7 @@ echo "[*] Starting swtpm-arch-container...."
 echo "[*] TPM running ip: 0.0.0.0"
 echo "server --> 0.0.0.0 , PORT=$TPMSERVE"
 echo "ctrl   --> 0.0.0.0 , PORT=$TPMCTRL"
-# Run swtpm
+# Run swtpm (Own version is better than slop i feel that)
 /usr/bin/swtpm \
 	socket \
 	--tpm2 \
