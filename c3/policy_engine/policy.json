@@ -1,0 +1,35 @@
+{
+  "sensitive_actions": [
+    "delete",
+    "execute",
+    "write",
+    "modify",
+    "chmod",
+    "chown",
+    "install",
+    "uninstall",
+    "query",
+    "curl",
+    "wget",
+    "ssh",
+    "scp"
+  ],
+  "sensitive_targets": [
+    "/etc/",
+    "/root/",
+    "/var/",
+    "/usr/bin/",
+    "/usr/sbin/",
+    "/boot/",
+    "/proc/",
+    "/sys/",
+    "database:",
+    "api:",
+    "secret",
+    "credential",
+    "password",
+    "token",
+    "key"
+  ]
+}
+
