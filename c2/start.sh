@@ -1,18 +1,21 @@
 #!/bin/bash
 
-# This is the port number , don't edit this boy/girl
+# Port number
 
 TPMSERVE="2321"
 TPMCTRL="2322"
 
-# Startup script (visual)
+# TPM environment variable
+TPM2TOOLS_TCTI="swtpm:host=trustedge-c2,port=2321"
+
+# Startup script
 echo "[*] Starting swtpm Arch container"
 echo "[*] TPM will running in these below ip's only"
 ip -br addr show
 echo "server --> PORT=$TPMSERVE"
 echo "ctrl   --> PORT=$TPMCTRL"
 
-# Run swtpm (Own version is better than slop i feel alva)
+# Run swtpm
 
 /usr/bin/swtpm \
 	socket \
