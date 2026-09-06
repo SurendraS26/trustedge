@@ -1,0 +1,10 @@
+{
+  "sensitive_actions": [
+    "delete", "execute", "write", "modify",
+    "chmod", "install", "rm", "mv", "ssh", "curl", "wget"
+  ],
+  "sensitive_targets": [
+    "/etc/", "/root/", "/var/", "/usr/bin/", "/boot/",
+    "database:", "secret", "password", "token", ".env", "shadow"
+  ]
+}

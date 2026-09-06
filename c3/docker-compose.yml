@@ -1,0 +1,35 @@
+services:
+  c2:
+    image: trustedge-c2
+    container_name: trustedge-c2
+    ports:
+      - "2321:2321"
+      - "2322:2322"
+    volumes:
+      - swtpm-state:/var/lib/swtpm/tpmstate
+
+  c3:
+    build: .
+    container_name: trustedge-c3
+    ports:
+      - "8000:8000"
+    environment:
+      - TPM2TOOLS_TCTI=swtpm:host=c2,port=2321
+      - AK_HANDLE=0x81010001
+      - AK_PUB_PATH=/app/tpm_keys/ak.pub
+      - TPM_PCR=16
+      - BASELINE_DB=/app/baseline_store/baseline.db
+      - AUDIT_DB=/app/alerts/audit.db
+      - AUDIT_LOG=/var/log/audit/audit.log
+    volumes:
+      - /var/log/audit:/var/log/audit:ro
+      - tpm-keys:/app/tpm_keys
+      - baseline:/app/baseline_store
+    depends_on:
+      - c2
+    privileged: true
+
+volumes:
+  swtpm-state:
+  tpm-keys:
+  baseline:
