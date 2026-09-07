@@ -1,11 +1,8 @@
 #!/usr/bin/env bash
 set -e
-
 echo "[c1] starting ollama server"
-ollama serve &
+ollama serve > /dev/null 2>&1 &
 OLLAMA_PID=$!
-
-# Wait for the server to accept connections.
 for i in $(seq 1 30); do
     if curl -s http://localhost:11434/api/version >/dev/null 2>&1; then
         break
