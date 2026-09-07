@@ -1,4 +1,4 @@
-# TrustEdge
+# TrustEdge ( In Progress )
 
 ### Description
 TPM-Assisted Secure Attestation Framework for AI Agents
