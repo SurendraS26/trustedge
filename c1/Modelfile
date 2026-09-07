@@ -1,4 +1,4 @@
-FROM qwen2.5:3b
+FROM mistral:7b
 
 PARAMETER temperature 0.2
 PARAMETER num_ctx 4096
