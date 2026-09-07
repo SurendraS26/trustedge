@@ -20,6 +20,7 @@ RUN pip install --break-system-packages --no-cache-dir -r requirements.txt
 
 COPY Modelfile .
 COPY main.py .
+COPY executor.py .
 
 ENV OLLAMA_HOST=0.0.0.0:11434
 ENV NVIDIA_VISIBLE_DEVICES=all
