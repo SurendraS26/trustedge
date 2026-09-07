@@ -32,5 +32,6 @@
     "modules/policy_engine.py",
     "modules/baseline_store.py",
     "modules/alert_log.py"
-  ]
+  ],
+  "popup_timeout_seconds": 30
 }

@@ -44,6 +44,24 @@ st.markdown(PLAIN_TABLE_CSS, unsafe_allow_html=True)
 st.title("TrustEdge Audit Log")
 
 alert_log = AlertLog()
+
+pending = alert_log.list_unresolved_pending()
+if pending:
+    st.markdown('<meta http-equiv="refresh" content="2">', unsafe_allow_html=True)
+    st.subheader(f"Pending approval ({len(pending)})")
+    for item in pending:
+        with st.container(border=True):
+            st.write(f"**{item['action']}** → `{item['target']}`")
+            st.caption(item["reasoning"] or "")
+            col1, col2 = st.columns(2)
+            if col1.button("ALLOW", key=f"allow-{item['id']}"):
+                alert_log.resolve_pending(item["id"], "ALLOW")
+                st.rerun()
+            if col2.button("BLOCK", key=f"block-{item['id']}"):
+                alert_log.resolve_pending(item["id"], "BLOCK")
+                st.rerun()
+    st.divider()
+
 entries = alert_log.recent_entries(limit=500)
 
 if not entries:
