@@ -9,7 +9,9 @@ RUN pacman -Syu --noconfirm && \
         libnotify \
         tpm2-tss \
         tpm2-tools \
-        curl && \
+        curl \
+        gcc \
+        pkgconf && \
     pacman -Scc --noconfirm
 
 WORKDIR /app
