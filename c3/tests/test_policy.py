@@ -1,24 +1,53 @@
-"""Test policy engine — no TPM needed"""
+"""
+Verify the Policy Engine classifies actions correctly and enforces
+denied-target rules. Run with: pytest tests/test_policy.py
+"""
+
+import os
 import sys
-sys.path.insert(0, "/app")
-from policy_engine.policy_engine import is_sensitive
 
-cases = [
-    ("read",    "/tmp/notes.txt",   False, "read public file"),
-    ("read",    "/etc/passwd",      True,  "read /etc/"),
-    ("delete",  "/tmp/file.txt",    True,  "delete action"),
-    ("execute", "/usr/bin/ls",      True,  "execute action"),
-    ("write",   "/home/user/a.txt", True,  "write action"),
-    ("read",    "secret.pem",       True,  "secret in name"),
-    ("list",    "/home/user/docs",  False, "list non-sensitive"),
-]
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-print("\n=== Policy Engine ===")
-passed = 0
-for action, target, expected, desc in cases:
-    result = is_sensitive(action, target)
-    ok = result == expected
-    print(f"  [{'PASS' if ok else 'FAIL'}] {desc}")
-    if ok:
-        passed += 1
-print(f"\n{passed}/{len(cases)} passed\n")
+from modules.policy_engine import PolicyEngine
+
+
+def test_non_sensitive_action_is_allowed():
+    engine = PolicyEngine()
+    result = engine.evaluate("read_file", "/app/notes.txt")
+    assert result["classification"] == "non_sensitive"
+    assert result["decision"] == "ALLOW"
+
+
+def test_sensitive_action_requires_review():
+    engine = PolicyEngine()
+    result = engine.evaluate("write_file", "/app/output.txt")
+    assert result["classification"] == "sensitive"
+    assert result["decision"] == "REVIEW"
+
+
+def test_unknown_action_is_blocked():
+    engine = PolicyEngine()
+    result = engine.evaluate("format_disk", "/dev/sda")
+    assert result["decision"] == "BLOCK"
+
+
+def test_denied_target_is_blocked_even_if_action_is_sensitive():
+    engine = PolicyEngine()
+    result = engine.evaluate("write_file", "/etc/shadow")
+    assert result["decision"] == "BLOCK"
+    assert "denied pattern" in result["reason"]
+
+
+def test_denied_command_target_is_blocked():
+    engine = PolicyEngine()
+    result = engine.evaluate("run_command", "rm -rf / --no-preserve-root")
+    assert result["decision"] == "BLOCK"
+
+
+if __name__ == "__main__":
+    test_non_sensitive_action_is_allowed()
+    test_sensitive_action_requires_review()
+    test_unknown_action_is_blocked()
+    test_denied_target_is_blocked_even_if_action_is_sensitive()
+    test_denied_command_target_is_blocked()
+    print("test_policy: all tests passed")

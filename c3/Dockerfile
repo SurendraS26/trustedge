@@ -1,18 +1,30 @@
-FROM archlinux:base
+FROM archlinux:latest
 
-RUN pacman -Syu --noconfirm --needed \
-        python python-pip tpm2-tools tpm2-tss \
-        sqlite audit libnotify zenity xxd \
-    && pacman -Scc --noconfirm \
-    && rm -rf /var/cache/pacman/pkg/*
+RUN pacman -Syu --noconfirm && \
+    pacman -S --noconfirm \
+        python \
+        python-pip \
+        sqlite \
+        zenity \
+        libnotify \
+        tpm2-tss \
+        tpm2-tools \
+        curl && \
+    pacman -Scc --noconfirm
 
 WORKDIR /app
 COPY requirements.txt .
-RUN pip install --break-system-packages -r requirements.txt
+RUN pip install --break-system-packages --no-cache-dir -r requirements.txt
 
 COPY . .
-RUN chmod +x entrypoint.sh scripts/setup_tpm.sh interceptor/audit_rules.sh
-RUN mkdir -p /app/tpm_keys /app/baseline_store /app/alerts
+RUN chmod +x scripts/setup_tpm.sh
 
-EXPOSE 8000
-ENTRYPOINT ["./entrypoint.sh"]
+RUN mkdir -p /data
+VOLUME ["/data"]
+
+EXPOSE 8000 8501
+
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+ENTRYPOINT ["/app/entrypoint.sh"]

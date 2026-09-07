@@ -1,37 +1,24 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
 
-echo "[*] TrustEdge c3 starting..."
+echo "[c3] waiting for TPM at ${TCTI:-swtpm:host=c2-tpm,port=2321}"
+export TPM2TOOLS_TCTI="${TCTI:-swtpm:host=c2-tpm,port=2321}"
 
-# Wait for c2 to be ready
-echo "[*] Waiting for swtpm (c2)..."
-until tpm2_startup -T "$TPM2TOOLS_TCTI" -c 2>/dev/null; do
-    echo "[*] swtpm not ready yet, retrying in 2s..."
-    sleep 2
+for i in $(seq 1 30); do
+    if tpm2_startup -c >/dev/null 2>&1; then
+        break
+    fi
+    sleep 1
 done
-echo "[+] swtpm ready"
 
-# TPM setup — only if AK does not exist yet
-if [ ! -f "$AK_PUB_PATH" ]; then
-    echo "[*] Running TPM setup..."
-    bash scripts/setup_tpm.sh
-else
-    echo "[+] AK already exists, skipping TPM setup"
-fi
+echo "[c3] provisioning attestation key (idempotent)"
+bash scripts/setup_tpm.sh || echo "[c3] setup_tpm.sh reported an issue, continuing"
 
-# Baseline init — only if DB does not exist yet
-if [ ! -f "$BASELINE_DB" ]; then
-    echo "[*] Running baseline init..."
-    python scripts/init_baseline.py
-else
-    echo "[+] Baseline already exists, skipping"
-fi
+echo "[c3] starting dashboard on :8501"
+streamlit run dashboard/app.py \
+    --server.port 8501 \
+    --server.address 0.0.0.0 \
+    --server.headless true &
 
-# Audit rules
-bash interceptor/audit_rules.sh || echo "[WARN] audit rules failed"
-
-# Start interceptor in background
-python -m interceptor.interceptor &
-
-echo "[*] Starting API on port 8000..."
-exec uvicorn main:app --host 0.0.0.0 --port 8000
+echo "[c3] starting API on :8000"
+exec python main.py

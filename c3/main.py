@@ -1,18 +1,51 @@
+"""
+TrustEdge - Container 3: Framework
+
+FastAPI service exposing /evaluate. Every action proposed by the agent in
+c1 flows through, in order:
+
+    Interceptor -> Policy Engine -> Baseline Store -> Verifier (TPM) -> Alert Log
+
+Non-sensitive actions are allowed immediately by the Policy Engine.
+Sensitive actions must pass integrity verification (baseline hash check)
+and TPM attestation before the operator is given a final ALLOW/BLOCK
+prompt (with a 30s timeout, after which the automated decision stands).
+Every outcome, allowed or blocked, is written to the audit log.
+"""
+
+import logging
+import os
+
+import uvicorn
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-from policy_engine.policy_engine import is_sensitive
-from integrity_monitor.integrity_monitor import run_integrity_check
-from attestation_manager.attestation_manager import request_quote
-from verifier.verifier import verify_quote
-from alerts.alert_log import write_alert
+from modules.interceptor import Interceptor
+from modules.policy_engine import PolicyEngine
+from modules.baseline_store import BaselineStore
+from modules.verifier import Verifier
+from modules.alert_log import AlertLog
 
-app = FastAPI(title="TrustEdge c3")
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [c3] %(levelname)s %(name)s: %(message)s",
+)
+log = logging.getLogger("main")
+
+app = FastAPI(title="TrustEdge Framework")
+
+interceptor = Interceptor()
+policy_engine = PolicyEngine()
+baseline_store = BaselineStore()
+alert_log = AlertLog()
+
+baseline_store.establish_baseline_if_empty()
 
 
-class Action(BaseModel):
+class ActionRequest(BaseModel):
     action: str
     target: str
+    reasoning: str = ""
 
 
 @app.get("/health")
@@ -20,36 +53,71 @@ def health():
     return {"status": "ok"}
 
 
-@app.get("/policy/check")
-def policy_check(action: str, target: str):
-    return {"action": action, "target": target, "sensitive": is_sensitive(action, target)}
-
-
 @app.post("/evaluate")
-def evaluate(req: Action):
-    # Step 1: policy check
-    if not is_sensitive(req.action, req.target):
-        return {"allowed": True, "reason": "non-sensitive"}
+def evaluate(request: ActionRequest):
+    try:
+        intercepted = interceptor.capture(request.model_dump())
+    except ValueError as exc:
+        log.warning("rejected malformed request: %s", exc)
+        return {"decision": "BLOCK", "reason": f"malformed request: {exc}"}
 
-    # Step 2: integrity check
-    ok, failed = run_integrity_check()
-    if not ok:
-        reason = f"integrity failed: {failed}"
-        write_alert(req.action, req.target, reason)
-        return {"allowed": False, "reason": reason}
+    action = intercepted.action
+    target = intercepted.target
+    reasoning = intercepted.reasoning
 
-    # Step 3: get TPM quote
-    quote = request_quote()
-    if quote is None:
-        reason = "attestation failed"
-        write_alert(req.action, req.target, reason)
-        return {"allowed": False, "reason": reason}
+    policy_result = policy_engine.evaluate(action, target)
+    classification = policy_result["classification"]
 
-    # Step 4: verify quote
-    verified, why = verify_quote(quote)
-    if not verified:
-        reason = f"quote failed: {why}"
-        write_alert(req.action, req.target, reason)
-        return {"allowed": False, "reason": reason}
+    # Non-sensitive allow, or an outright policy block, needs no attestation.
+    if policy_result["decision"] in ("ALLOW", "BLOCK"):
+        alert_log.record(
+            action, target, reasoning, classification,
+            attested="n/a", final_decision=policy_result["decision"],
+            reason=policy_result["reason"],
+        )
+        return {"decision": policy_result["decision"], "reason": policy_result["reason"]}
 
-    return {"allowed": True, "reason": "attestation passed"}
+    # Sensitive action: verify framework integrity, then attest via TPM.
+    is_intact, mismatched, combined_digest = baseline_store.check_integrity()
+
+    if not is_intact:
+        reason = f"integrity check failed, tampered files: {mismatched}"
+        log.error(reason)
+        alert_log.record(
+            action, target, reasoning, classification,
+            attested=False, final_decision="BLOCK", reason=reason,
+        )
+        return {"decision": "BLOCK", "reason": reason}
+
+    attestation = Verifier().attest(combined_digest)
+
+    if not attestation["attested"]:
+        reason = f"attestation failed: {attestation['reason']}"
+        log.error(reason)
+        alert_log.record(
+            action, target, reasoning, classification,
+            attested=False, final_decision="BLOCK", reason=reason,
+        )
+        return {"decision": "BLOCK", "reason": reason}
+
+    # Integrity and attestation passed. Give the operator the final call,
+    # with the attested-safe automated decision (ALLOW) as the default if
+    # the popup times out or no display is available.
+    operator_choice = alert_log.prompt_operator(action, target, reasoning)
+    final_decision = operator_choice or "ALLOW"
+    reason = (
+        f"operator chose {operator_choice}"
+        if operator_choice
+        else "attestation succeeded, no operator response, defaulted to ALLOW"
+    )
+
+    alert_log.record(
+        action, target, reasoning, classification,
+        attested=True, final_decision=final_decision, reason=reason,
+    )
+    return {"decision": final_decision, "reason": reason}
+
+
+if __name__ == "__main__":
+    port = int(os.environ.get("FRAMEWORK_PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")
