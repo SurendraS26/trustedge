@@ -12,6 +12,7 @@ the framework to perform on your behalf:
 {
   "action": "<one of: read_file, write_file, run_command, network_call, delete_file>",
   "target": "<the file path, command, or URL this action applies to>",
+  "content": "<only for write_file: the exact text to write. Omit for other actions>",
   "reasoning": "<one short sentence explaining why this action is needed>"
 }
 

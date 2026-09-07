@@ -4,7 +4,8 @@ TrustEdge - Container 1: AI Agent
 Plain, utilitarian terminal loop. Reads a task from the user, asks the local
 Ollama model for a single next action as JSON, then submits that action to
 the c3 framework's /evaluate endpoint for a policy + attestation decision.
-The agent never executes anything itself - it only proposes actions.
+The action is only ever executed (via executor.py) if c3 returns ALLOW -
+a BLOCK verdict means the action never runs.
 """
 
 import json
@@ -14,6 +15,8 @@ import sys
 import time
 
 import requests
+
+from executor import execute
 
 logging.basicConfig(
     level=logging.INFO,
@@ -59,10 +62,12 @@ def get_agent_decision(task_description):
         log.error("model did not return valid JSON: %s", raw_text)
         return None
 
-    for field in ("action", "target", "reasoning"):
-        if field not in decision:
-            log.error("model response missing required field: %s", field)
-            return None
+    if "action" not in decision or not str(decision["action"]).strip():
+        log.error("model response missing required field: action (raw: %s)", raw_text)
+        return None
+
+    decision.setdefault("target", "")
+    decision.setdefault("reasoning", "")
 
     return decision
 
@@ -78,13 +83,17 @@ def submit_for_evaluation(decision):
         return {"decision": "ERROR", "reason": str(exc)}
 
 
-def print_result(decision, verdict):
+def print_result(decision, verdict, execution=None):
     print("-" * 60)
     print(f"action    : {decision.get('action')}")
     print(f"target    : {decision.get('target')}")
     print(f"reasoning : {decision.get('reasoning')}")
     print(f"verdict   : {verdict.get('decision')}")
     print(f"reason    : {verdict.get('reason', '')}")
+    if execution is not None:
+        status = "succeeded" if execution.get("ok") else "failed"
+        print(f"executed  : {status}")
+        print(f"output    : {execution.get('output', '')}")
     print("-" * 60)
 
 
@@ -118,7 +127,14 @@ def main():
             continue
 
         verdict = submit_for_evaluation(decision)
-        print_result(decision, verdict)
+
+        execution = None
+        if verdict.get("decision") == "ALLOW":
+            execution = execute(decision)
+        else:
+            log.info("action blocked, not executing: %s", verdict.get("reason"))
+
+        print_result(decision, verdict, execution)
 
 
 if __name__ == "__main__":

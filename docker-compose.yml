@@ -8,7 +8,7 @@ services:
     container_name: trustedge-c1
     env_file: .env
     environment:
-      - OLLAMA_MODEL=${OLLAMA_MODEL:-mistral:7b}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-qwen2.5:3b}
       - FRAMEWORK_URL=http://c3-framework:8000/evaluate
     ports:
       - "11434:11434"
