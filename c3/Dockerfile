@@ -15,7 +15,7 @@ RUN pip install --break-system-packages \
     requests
 WORKDIR /app
 COPY requirements.txt .
-RUN pip install --break--system-packages -r requirements.txt
+RUN pip install --break-system-packages -r requirements.txt
 COPY . .
 RUN chmod +x entrypoint.sh
 EXPOSE 8000 8500
