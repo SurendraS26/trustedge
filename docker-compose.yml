@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  c1-agent:
+    build:
+      context: ./c1
+      dockerfile: Dockerfile
+    container_name: trustedge-c1
+    env_file: .env
+    environment:
+      - FRAMEWORK_URL=http://c2-framework:8000
+    depends_on:
+      - c2-framework
+    networks:
+      - trustedge-net
+    stdin_open: true
+    tty: true
+
+  c2-framework:
+    build:
+      context: ./c2
+      dockerfile: Dockerfile
+    container_name: trustedge-c2
+    env_file: .env
+    environment:
+      - WAYLAND_DISPLAY=wayland-0
+      - XDG_RUNTIME_DIR=/tmp
+      - GDK_BACKEND=wayland
+    volumes:
+      - swtpm-state:/var/lib/swtpm
+      - ./c2/audit:/app/audit
+      - ./.env:/app/.env
+      - ${XDG_RUNTIME_DIR}/${WAYLAND_DISPLAY}:/tmp/wayland-0
+    networks:
+      - trustedge-net
+    ports:
+      - "8000:8000"
+
+networks:
+  trustedge-net:
+    driver: bridge
+
+volumes:
+  swtpm-state:

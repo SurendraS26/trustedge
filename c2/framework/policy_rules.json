@@ -1,0 +1,11 @@
+{
+  "rules": [
+    { "action_type": "read_public_file",     "sensitive": false, "urgency": "low" },
+    { "action_type": "read_file",             "sensitive": true,  "urgency": "normal" },
+    { "action_type": "read_confidential_file","sensitive": true,  "urgency": "critical" },
+    { "action_type": "run_shell_command",     "sensitive": true,  "urgency": "critical" },
+    { "action_type": "query_database",        "sensitive": true,  "urgency": "normal" },
+    { "action_type": "call_enterprise_api",   "sensitive": true,  "urgency": "critical" }
+  ],
+  "default": { "sensitive": true, "urgency": "critical" }
+}
