@@ -1,0 +1,15 @@
+[Unit]
+Description=TrustEdge - Framework API (policy + attestation)
+After=trustedge-tpm.service network.target
+Requires=trustedge-tpm.service
+
+[Service]
+Type=simple
+WorkingDirectory=__REPO__/c3
+EnvironmentFile=-__REPO__/.env
+ExecStart=__REPO__/native/start-framework.sh
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=default.target

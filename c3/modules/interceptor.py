@@ -1,22 +1,68 @@
-#!/usr/bin/env python3
+"""
+Interceptor
 
-import os
-import subprocess
-import hashlib
+Sits in front of the Policy Engine. Every action proposed by the (untrusted)
+agent in c1 arrives here first. The interceptor's job is narrow and
+deliberate:
+  - validate that the incoming request has the required shape
+  - normalize it into a consistent internal representation
+  - log receipt of the request for the audit trail, before any decision
+    has been made
 
-def capture(action, target):
-    if action != "execute":
-        return {"allowed": True, "reason": "Action not intercepted"}
+It never makes an allow/deny decision itself.
+"""
 
-    if not os.path.exists(target):
-        return {"allowed": False, "reason": f"Target '{target}' does not exist"}
+import logging
+import time
 
-    try:
-        with open(target, "rb") as f:
-            file_hash = hashlib.sha256(f.read()).hexdigest()
-    except Exception as e:
-        return {"allowed": False, "reason": f"Hash computation failed: {str(e)}"}
+log = logging.getLogger("interceptor")
 
-    print(f"[INTERCEPT] Action: {action}, Target: {target}, Hash: {file_hash[:16]}...")
+REQUIRED_FIELDS = ("action", "target", "reasoning")
 
-    return {"allowed": True, "reason": "Interception passed"}
+
+class InterceptedRequest:
+    def __init__(self, action, target, reasoning, received_at):
+        self.action = action
+        self.target = target
+        self.reasoning = reasoning
+        self.received_at = received_at
+
+    def as_dict(self):
+        return {
+            "action": self.action,
+            "target": self.target,
+            "reasoning": self.reasoning,
+            "received_at": self.received_at,
+        }
+
+
+class Interceptor:
+    def capture(self, payload):
+        """
+        Validate and normalize a raw request payload.
+
+        Returns an InterceptedRequest on success, or raises ValueError with
+        a human-readable message if the payload is malformed.
+        """
+        if not isinstance(payload, dict):
+            raise ValueError("request payload must be a JSON object")
+
+        missing = [f for f in REQUIRED_FIELDS if f not in payload]
+        if missing:
+            raise ValueError(f"missing required fields: {', '.join(missing)}")
+
+        action = str(payload["action"]).strip()
+        target = str(payload["target"]).strip()
+        reasoning = str(payload["reasoning"]).strip()
+
+        if not action:
+            raise ValueError("'action' must not be empty")
+
+        request = InterceptedRequest(
+            action=action,
+            target=target,
+            reasoning=reasoning,
+            received_at=time.time(),
+        )
+        log.info("intercepted request: action=%s target=%s", action, target)
+        return request

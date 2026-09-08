@@ -1,33 +1,89 @@
-#!/usr/bin/env python3
+"""
+TrustEdge Dashboard
 
-import streamlit as st
-import sqlite3
+Utilitarian Minimalist Streamlit view of the audit log: a single, clean
+table with proper column headers and structured rows. No charts, no
+colors beyond a plain ALLOW/BLOCK/REVIEW text marker, no clutter.
+"""
+
+import os
+import sys
+
 import pandas as pd
+import streamlit as st
 
-st.set_page_config(page_title="TrustEdge Dashboard", layout="wide")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-st.title("🛡️ TrustEdge — Audit Logs")
-st.markdown("### Security events from AI agent interception")
+from modules.alert_log import AlertLog
 
-def load_logs():
-    try:
-        conn = sqlite3.connect("/app/audit.db")
-        df = pd.read_sql_query(
-            "SELECT timestamp, action, target, reason FROM audit ORDER BY id DESC LIMIT 100",
-            conn,
-        )
-        conn.close()
-        return df
-    except Exception:
-        # audit.db/table may not exist yet if no action has been logged
-        return pd.DataFrame(columns=["timestamp", "action", "target", "reason"])
+st.set_page_config(page_title="TrustEdge Audit Log", layout="wide")
 
-df = load_logs()
+PLAIN_TABLE_CSS = """
+<style>
+    #MainMenu, footer, header {visibility: hidden;}
+    .block-container {padding-top: 2rem;}
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: monospace;
+        font-size: 14px;
+    }
+    thead th {
+        text-align: left;
+        border-bottom: 2px solid #333;
+        padding: 6px 10px;
+    }
+    tbody td {
+        border-bottom: 1px solid #ddd;
+        padding: 6px 10px;
+    }
+</style>
+"""
+st.markdown(PLAIN_TABLE_CSS, unsafe_allow_html=True)
 
-if df.empty:
-    st.info("No security events logged yet.")
+st.title("TrustEdge Audit Log")
+
+alert_log = AlertLog()
+
+pending = alert_log.list_unresolved_pending()
+if pending:
+    st.markdown('<meta http-equiv="refresh" content="2">', unsafe_allow_html=True)
+    st.subheader(f"Pending approval ({len(pending)})")
+    for item in pending:
+        with st.container(border=True):
+            st.write(f"**{item['action']}** → `{item['target']}`")
+            st.caption(item["reasoning"] or "")
+            col1, col2 = st.columns(2)
+            if col1.button("ALLOW", key=f"allow-{item['id']}"):
+                alert_log.resolve_pending(item["id"], "ALLOW")
+                st.rerun()
+            if col2.button("BLOCK", key=f"block-{item['id']}"):
+                alert_log.resolve_pending(item["id"], "BLOCK")
+                st.rerun()
+    st.divider()
+
+entries = alert_log.recent_entries(limit=500)
+
+if not entries:
+    st.write("No audit entries yet. Submit an action from the agent to populate this log.")
 else:
-    st.dataframe(df, use_container_width=True)
+    df = pd.DataFrame(entries)
+    df["timestamp"] = pd.to_datetime(df["timestamp"], unit="s")
+    df = df.rename(columns={
+        "id": "ID",
+        "timestamp": "Time",
+        "action": "Action",
+        "target": "Target",
+        "reasoning": "Reasoning",
+        "classification": "Classification",
+        "attested": "Attested",
+        "final_decision": "Decision",
+        "reason": "Reason",
+    })
+    columns = ["ID", "Time", "Action", "Target", "Classification", "Attested", "Decision", "Reasoning", "Reason"]
+    st.write(df[columns].to_html(index=False), unsafe_allow_html=True)
 
-st.markdown("---")
-st.caption("TrustEdge Framework — Developed by SurendraS26")
+    st.caption(f"{len(entries)} entries shown (most recent first, limit 500)")
+
+if st.button("Refresh"):
+    st.rerun()

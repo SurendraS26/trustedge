@@ -1,23 +1,32 @@
 FROM archlinux:latest
-LABEL maintainer="SurendraS26" \
-      org.opencontainers.image.title="trustedge-c3" \
-      org.opencontainers.image.description="TPM-Assisted Secure Attestation Framework for AI Agents"
-RUN pacman -Syu --noconfirm \
-    python \
-    python-pip \
-    sqlite \
-    zenity \
-    tpm2-tools \
-    && pacman -Scc --noconfirm
-RUN pip install --break-system-packages \
-    fastapi \
-    uvicorn \
-    streamlit \
-    requests
+
+RUN pacman -Syu --noconfirm && \
+    pacman -S --noconfirm \
+        python \
+        python-pip \
+        sqlite \
+        zenity \
+        libnotify \
+        tpm2-tss \
+        tpm2-tools \
+        curl \
+        gcc \
+        pkgconf && \
+    pacman -Scc --noconfirm
+
 WORKDIR /app
 COPY requirements.txt .
-RUN pip install --break-system-packages -r requirements.txt
+RUN pip install --break-system-packages --no-cache-dir -r requirements.txt
+
 COPY . .
-RUN chmod +x entrypoint.sh
-EXPOSE 8000 8500
-ENTRYPOINT ["./entrypoint.sh"] 
+RUN chmod +x scripts/setup_tpm.sh
+
+RUN mkdir -p /data
+VOLUME ["/data"]
+
+EXPOSE 8000 8501
+
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+ENTRYPOINT ["/app/entrypoint.sh"]

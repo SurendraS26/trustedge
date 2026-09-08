@@ -1,45 +1,76 @@
+version: "3.9"
+
 services:
-  c2:
-    build: ./c2
-    container_name: trustedge-c2
-    ports:
-      - "2321:2321"
-      - "2322:2322"
-    volumes:
-      - tpm-data:/var/lib/swtpm
-    restart: unless-stopped
 
-  c3:
-    build: ./c3
-    container_name: trustedge-c3
-    ports:
-      - "8000:8000"
-      - "8500:8500"
-    volumes:
-      - /tmp/.X11-unix:/tmp/.X11-unix
-    environment:
-      - DISPLAY=${DISPLAY}
-      - TPM2TOOLS_TCTI=swtpm:host=trustedge-c2,port=2321
-    depends_on:
-      - c2
-    restart: unless-stopped
-
-  c1:
-    build: ./c1
+  c1-agent:
+    build:
+      context: ./c1
     container_name: trustedge-c1
+    env_file: .env
+    environment:
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-qwen2.5:3b}
+      - FRAMEWORK_URL=http://c3-framework:8000/evaluate
+      - EMBED_MODEL=${EMBED_MODEL:-mxbai-embed-large}
+      - RAG_TOP_K=${RAG_TOP_K:-4}
     ports:
       - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+      - ./c1/data:/app/data
+      - rag-data:/app/chroma_db
     depends_on:
-      - c2
-      - c3
-    restart: unless-stopped
+      - c3-framework
     deploy:
       resources:
         reservations:
           devices:
             - driver: nvidia
-              count: all
+              count: 1
               capabilities: [gpu]
+    stdin_open: true
+    tty: true
+    networks:
+      - trustedge-net
+
+  c2-tpm:
+    build:
+      context: ./c2
+    container_name: trustedge-c2
+    volumes:
+      - tpm-state:/var/lib/swtpm
+    ports:
+      - "2321:2321"
+      - "2322:2322"
+    networks:
+      - trustedge-net
+
+  c3-framework:
+    build:
+      context: ./c3
+    container_name: trustedge-c3
+    env_file: .env
+    environment:
+      - TCTI=swtpm:host=c2-tpm,port=2321
+      - SQLITE_PATH=/data/trustedge.db
+      - DISPLAY=${DISPLAY}
+      - ALERT_TIMEOUT_SECONDS=${ALERT_TIMEOUT_SECONDS:-30}
+    ports:
+      - "8000:8000"
+      - "8501:8501"
+    volumes:
+      - framework-data:/data
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    depends_on:
+      - c2-tpm
+    networks:
+      - trustedge-net
 
 volumes:
-  tpm-data:
+  ollama-data:
+  tpm-state:
+  framework-data:
+  rag-data:
+
+networks:
+  trustedge-net:
+    driver: bridge

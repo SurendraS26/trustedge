@@ -1,0 +1,15 @@
+[Unit]
+Description=TrustEdge - Audit log dashboard
+After=trustedge-framework.service
+Requires=trustedge-framework.service
+
+[Service]
+Type=simple
+WorkingDirectory=__REPO__/c3
+EnvironmentFile=-__REPO__/.env
+ExecStart=__REPO__/native/start-dashboard.sh
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=default.target

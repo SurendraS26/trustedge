@@ -1,82 +1,131 @@
-#!/usr/bin/env python3
+"""
+Attestation Manager + Verifier
 
+Talks to the swtpm running in c2 (over TCP, via tpm2-tools' TCTI) to:
+  1. Extend a PCR with a digest that represents the current measured state
+     of the framework's critical files (see baseline_store).
+  2. Request a signed Quote over that PCR, bound to a fresh nonce so replay
+     of an old quote cannot pass verification.
+  3. Verify the quote's signature, nonce, and PCR contents against the
+     Attestation Key persisted by scripts/setup_tpm.sh.
+
+PCR 16 is used (a debug/application PCR, not one of the firmware-reserved
+PCRs 0-7), which is the convention used throughout this prototype.
+"""
+
+import logging
 import os
+import secrets
 import subprocess
-import hashlib
+import tempfile
 
-from modules import baseline_store
+log = logging.getLogger("verifier")
 
-# TPM TCTI for c2 container (also set via TPM2TOOLS_TCTI env var in docker-compose)
-TPM_TCTI = "swtpm:host=trustedge-c2,port=2321"
-
-# PCR used to record a tamper-evident measurement log of everything executed
-MEASUREMENT_PCR = 16
-
-
-def get_file_hash(filepath):
-    try:
-        with open(filepath, "rb") as f:
-            return hashlib.sha256(f.read()).hexdigest()
-    except Exception:
-        return None
+AK_HANDLE = "0x81010001"
+PCR_INDEX = 16
+PCR_BANK = "sha256"
+DATA_DIR = os.environ.get("SQLITE_PATH", "/data/trustedge.db")
+DATA_DIR = os.path.dirname(DATA_DIR) or "/data"
+AK_PUB = os.path.join(DATA_DIR, "ak.pub")
 
 
-def get_tpm_hash(filepath):
-    """Look up the trusted baseline hash for this target.
-
-    A hardware/software TPM doesn't store per-file hashes on its own; instead
-    we keep a baseline store of trusted hashes and use the TPM's PCRs to keep
-    a tamper-evident measurement log of every executable that has been
-    verified (see extend_measurement_pcr below).
-    """
-    return baseline_store.get_baseline(filepath)
-
-
-def extend_measurement_pcr(file_hash):
-    """Best-effort extend of the TPM measurement PCR with the verified hash.
-
-    This is not fatal if the TPM is unreachable - it's an additional
-    tamper-evidence layer on top of the baseline_store check, not the primary
-    gate, so verification results should not depend on it succeeding.
-    """
-    try:
-        env = os.environ.copy()
-        env.setdefault("TPM2TOOLS_TCTI", TPM_TCTI)
-        subprocess.run(
-            ["tpm2_pcrextend", f"{MEASUREMENT_PCR}:sha256={file_hash}"],
-            capture_output=True,
-            text=True,
-            timeout=5,
-            env=env,
+def _run(cmd):
+    log.debug("running: %s", " ".join(cmd))
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"command failed ({' '.join(cmd)}): {result.stderr.strip()}"
         )
-    except Exception as e:
-        print(f"[VERIFIER] TPM PCR extend skipped: {e}")
+    return result.stdout
 
 
-def verify(action, target):
-    # Integrity verification only makes sense for things we're about to run.
-    if action != "execute":
-        return {"allowed": True, "reason": "Integrity verification not required for this action"}
+class Verifier:
+    """
+    A single Verifier instance handles one attestation round for one
+    proposed action: reset the PCR, extend it with the current combined
+    measurement digest, get a quote, and check that quote.
+    """
 
-    if not os.path.exists(target):
-        return {"allowed": False, "reason": f"Target '{target}' does not exist"}
+    def __init__(self, ak_handle=AK_HANDLE, pcr_index=PCR_INDEX, ak_pub_path=AK_PUB):
+        self.ak_handle = ak_handle
+        self.pcr_index = pcr_index
+        self.ak_pub_path = ak_pub_path
 
-    current_hash = get_file_hash(target)
-    if not current_hash:
-        return {"allowed": False, "reason": f"Failed to hash target '{target}'"}
+    def extend_pcr(self, combined_digest_hex):
+        """Extend PCR_INDEX with the given hex digest of measured state."""
+        _run([
+            "tpm2_pcrextend",
+            f"{self.pcr_index}:{PCR_BANK}={combined_digest_hex}",
+        ])
+        log.info("extended PCR %d with digest %s", self.pcr_index, combined_digest_hex[:16])
 
-    baseline_hash = get_tpm_hash(target)
+    def read_pcr(self):
+        output = _run(["tpm2_pcrread", f"{PCR_BANK}:{self.pcr_index}"])
+        return output.strip()
 
-    if baseline_hash is None:
-        # Trust-on-first-use: no baseline recorded yet for this target, so
-        # establish one now and log the measurement into the TPM.
-        baseline_store.store_baseline(target, current_hash)
-        extend_measurement_pcr(current_hash)
-        print(f"[VERIFIER] No baseline for {target}; new baseline established")
-        return {"allowed": True, "reason": "No prior baseline; new baseline established (TOFU)"}
+    def quote(self):
+        """
+        Request a signed quote over PCR_INDEX bound to a fresh nonce.
 
-    if current_hash == baseline_hash:
-        extend_measurement_pcr(current_hash)
-        return {"allowed": True, "reason": "File integrity verified against baseline"}
+        Returns (nonce_hex, message_path, signature_path, pcrs_path) - the
+        caller is responsible for cleaning up the temp files.
+        """
+        nonce_hex = secrets.token_hex(16)
+        tmpdir = tempfile.mkdtemp(prefix="quote-")
+        message_path = os.path.join(tmpdir, "quote.msg")
+        signature_path = os.path.join(tmpdir, "quote.sig")
+        pcrs_path = os.path.join(tmpdir, "pcrs.out")
 
-    return {"allowed": False, "reason": f"Hash mismatch: {current_hash[:16]} != {baseline_hash[:16]}"}
+        _run([
+            "tpm2_quote",
+            "-c", self.ak_handle,
+            "-l", f"{PCR_BANK}:{self.pcr_index}",
+            "-q", nonce_hex,
+            "-m", message_path,
+            "-s", signature_path,
+            "-o", pcrs_path,
+            "-g", PCR_BANK,
+        ])
+        log.info("quote generated for PCR %d, nonce=%s", self.pcr_index, nonce_hex[:16])
+        return nonce_hex, message_path, signature_path, pcrs_path
+
+    def verify_quote(self, nonce_hex, message_path, signature_path, pcrs_path):
+        """
+        Verify the quote's signature and nonce using tpm2_checkquote.
+        Returns True if the quote is valid, False otherwise.
+        """
+        if not os.path.exists(self.ak_pub_path):
+            log.error("AK public key not found at %s; run setup_tpm.sh first", self.ak_pub_path)
+            return False
+
+        try:
+            _run([
+                "tpm2_checkquote",
+                "-u", self.ak_pub_path,
+                "-m", message_path,
+                "-s", signature_path,
+                "-f", pcrs_path,
+                "-g", PCR_BANK,
+                "-q", nonce_hex,
+            ])
+            return True
+        except RuntimeError as exc:
+            log.error("quote verification failed: %s", exc)
+            return False
+
+    def attest(self, combined_digest_hex):
+        """
+        Full attestation round for one proposed action.
+
+        Returns a dict: { "attested": bool, "reason": str }
+        """
+        try:
+            self.extend_pcr(combined_digest_hex)
+            nonce_hex, message_path, signature_path, pcrs_path = self.quote()
+            ok = self.verify_quote(nonce_hex, message_path, signature_path, pcrs_path)
+            if ok:
+                return {"attested": True, "reason": "quote signature and nonce verified"}
+            return {"attested": False, "reason": "quote verification failed"}
+        except RuntimeError as exc:
+            log.error("attestation round failed: %s", exc)
+            return {"attested": False, "reason": str(exc)}

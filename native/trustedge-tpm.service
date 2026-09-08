@@ -1,0 +1,19 @@
+[Unit]
+Description=TrustEdge - TPM 2.0 emulator (swtpm)
+After=network.target
+
+[Service]
+Type=simple
+ExecStartPre=/usr/bin/mkdir -p %h/.local/share/trustedge/tpm-state
+ExecStart=/usr/bin/swtpm socket \
+    --tpmstate dir=%h/.local/share/trustedge/tpm-state \
+    --ctrl type=tcp,port=2322,bindaddr=127.0.0.1 \
+    --server type=tcp,port=2321,bindaddr=127.0.0.1 \
+    --tpm2 \
+    --flags startup-clear \
+    --log level=1
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=default.target
