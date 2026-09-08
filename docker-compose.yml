@@ -1,0 +1,38 @@
+services:
+  c2:
+    build: ./c2
+    container_name: trustedge-c2
+    ports:
+      - "2321:2321"
+      - "2322:2322"
+    volumes:
+      - tpm-data:/var/lib/swtpm
+    restart: unless-stopped
+
+  c3:
+    build: ./c3
+    container_name: trustedge-c3
+    ports:
+      - "8000:8000"
+      - "8500:8500"
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    environment:
+      - DISPLAY=${DISPLAY}
+      - TPM2TOOLS_TCTI=swtpm:host=trustedge-c2,port=2321
+    depends_on:
+      - c2
+    restart: unless-stopped
+
+  c1:
+    build: ./c1
+    container_name: trustedge-c1
+    ports:
+      - "11434:11434"
+    depends_on:
+      - c2
+      - c3
+    restart: unless-stopped
+
+volumes:
+  tpm-data:
