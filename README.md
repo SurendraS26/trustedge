@@ -1,2 +1,0 @@
-# TrustEdge
-### Still working inprogress
