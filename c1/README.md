@@ -1,4 +1,4 @@
-![SWTPM Docker Arch Logo](etc/banner.png)
+![SWTPM Docker Arch Logo](https://raw.githubusercontent.com/SurendraS26/swtpm-arch-docker/refs/heads/main/etc/banner.png)
 
 SWTPM Docker Arch
 =================
