@@ -1,0 +1,4 @@
+{
+  "allowed_actions": ["read", "write", "execute", "list", "query"],
+  "allowed_hashes": []
+}
