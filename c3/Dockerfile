@@ -7,6 +7,7 @@ RUN pacman -Syu --noconfirm \
     python-pip \
     sqlite \
     zenity \
+    tpm2-tools \
     && pacman -Scc --noconfirm
 RUN pip install --break-system-packages \
     fastapi \

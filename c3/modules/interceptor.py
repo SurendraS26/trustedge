@@ -19,4 +19,4 @@ def capture(action, target):
 
     print(f"[INTERCEPT] Action: {action}, Target: {target}, Hash: {file_hash[:16]}...")
 
-    return {"allowed": True, "reason": "Interception passed, no TPM baseline set"}
+    return {"allowed": True, "reason": "Interception passed"}

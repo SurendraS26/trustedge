@@ -12,6 +12,9 @@ if ! command -v zenity &> /dev/null; then
     exit 1
 fi
 
+# TCTI used to talk to the swtpm running in the c2 container
+export TPM2TOOLS_TCTI="${TPM2TOOLS_TCTI:-swtpm:host=trustedge-c2,port=2321}"
+
 while true; do
     CHOICE=$(zenity --list \
         --title="TrustEdge — Tinker Panel" \
@@ -29,9 +32,17 @@ while true; do
 
     case "$CHOICE" in
         "Status")
+            API_STATUS="🔴 Not responding"
+            if curl -s -m 3 http://localhost:8000/health 2>/dev/null | grep -q '"status":"ok"'; then
+                API_STATUS="🟢 Running"
+            fi
+            TPM_STATUS="🔴 Not responding"
+            if tpm2_pcrread sha256:0 >/dev/null 2>&1; then
+                TPM_STATUS="🟢 Active"
+            fi
             zenity --info \
                 --title="TrustEdge Status" \
-                --text="<b> TrustEdge Status</b>\n\n🔹 Framework: Running\n🔹 TPM: Active\n🔹 Agent: Ready\n🔹 Interceptor: Enabled\n\n<i>All systems operational.</i>" \
+                --text="<b>TrustEdge Status</b>\n\n🔹 API: $API_STATUS\n🔹 TPM: $TPM_STATUS\n🔹 Interceptor: Enabled\n\n<i>Live status check.</i>" \
                 --width=400
             ;;
 
@@ -73,18 +84,34 @@ while true; do
 
             case "$ACTION" in
                 "Initialize TPM")
-                    zenity --info --text="🔧 TPM initialized successfully."
+                    if OUT=$(tpm2_startup -c 2>&1); then
+                        zenity --info --text="🔧 TPM initialized successfully."
+                    else
+                        zenity --error --text="TPM initialization failed:\n$OUT"
+                    fi
                     ;;
                 "Reset TPM")
-                    if zenity --question --text="Are you sure you want to reset TPM?"; then
-                        zenity --info --text="TPM reset completed."
+                    if zenity --question --text="Are you sure you want to reset TPM? This clears platform hierarchy state."; then
+                        if OUT=$(tpm2_clear -c p 2>&1); then
+                            zenity --info --text="TPM reset completed."
+                        else
+                            zenity --error --text="TPM reset failed:\n$OUT\n\nNote: a full state wipe requires restarting the c2 container."
+                        fi
                     fi
                     ;;
                 "View PCRs")
-                    zenity --info --text="PCR values will be shown in terminal.\nRun: tpm2_pcrread"
+                    OUT=$(tpm2_pcrread sha256 2>&1)
+                    echo "$OUT" | zenity --text-info --title="PCR Values (sha256 bank)" --width=600 --height=400
                     ;;
                 "Create Attestation Key")
-                    zenity --info --text="Attestation Key created successfully."
+                    WORKDIR=$(mktemp -d)
+                    if tpm2_createprimary -C e -g sha256 -G rsa -c "$WORKDIR/primary.ctx" >/tmp/ak_err 2>&1 \
+                        && tpm2_create -C "$WORKDIR/primary.ctx" -g sha256 -G rsa -u "$WORKDIR/ak.pub" -r "$WORKDIR/ak.priv" >>/tmp/ak_err 2>&1 \
+                        && tpm2_load -C "$WORKDIR/primary.ctx" -u "$WORKDIR/ak.pub" -r "$WORKDIR/ak.priv" -c "$WORKDIR/ak.ctx" >>/tmp/ak_err 2>&1; then
+                        zenity --info --text="Attestation Key created successfully.\n\nContext: $WORKDIR/ak.ctx"
+                    else
+                        zenity --error --text="Attestation Key creation failed:\n$(cat /tmp/ak_err)"
+                    fi
                     ;;
             esac
             ;;
@@ -132,7 +159,13 @@ while true; do
 
             case "$ACTION" in
                 "Store baseline hashes")
-                    zenity --info --text="Baseline hashes stored successfully."
+                    FILE=$(zenity --file-selection --title="Select a file to baseline")
+                    if [ -n "$FILE" ] && [ -f "$FILE" ]; then
+                        HASH=$(sha256sum "$FILE" | awk '{print $1}')
+                        sqlite3 /app/baseline.db "CREATE TABLE IF NOT EXISTS baseline (id INTEGER PRIMARY KEY AUTOINCREMENT, filepath TEXT UNIQUE, hash TEXT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP);"
+                        sqlite3 /app/baseline.db "INSERT OR REPLACE INTO baseline (filepath, hash) VALUES ('$FILE', '$HASH');"
+                        zenity --info --text="Baseline stored for:\n$FILE\n\nSHA256: $HASH"
+                    fi
                     ;;
                 "View stored hashes")
                     if [ -f "/app/baseline.db" ]; then
@@ -157,8 +190,7 @@ while true; do
 
             case "$ACTION" in
                 "Restart TrustEdge")
-                    zenity --info --text="Restarting TrustEdge..."
-                    # Actual restart logic can be added here
+                    zenity --info --text="This panel runs inside the trustedge-c3 container and can't restart its own container.\n\nFrom the host, run:\ndocker restart trustedge-c3"
                     ;;
                 "Stop TrustEdge")
                     if zenity --question --text="Are you sure you want to stop TrustEdge?"; then
