@@ -1,36 +1,15 @@
-FROM archlinux:latest
+FROM archlinux:base
 
-# Base packages, GPU drivers/CUDA, Python, and Ollama.
-RUN pacman -Syu --noconfirm && \
-    pacman -S --noconfirm \
-        python \
-        python-pip \
-        nvidia-utils \
-        cuda \
-        curl \
-        base-devel && \
-    pacman -Scc --noconfirm
+RUN pacman -Syu --noconfirm --needed swtpm tpm2-tss && \
+    pacman -Scc --noconfirm && \
+    rm -rf /var/cache/pacman/pkg/* /var/lib/pacman/sync/*
 
-# Install Ollama (official install script, works on Arch).
-RUN curl -fsSL https://ollama.com/install.sh | sh
+RUN mkdir -p /var/lib/swtpm/tpmstate
 
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install --break-system-packages --no-cache-dir -r requirements.txt
+ENTRYPOINT ["/usr/bin/swtpm"]
+CMD ["socket", "--tpm2", \
+    "--server", "type=tcp,port=2321,bindaddr=0.0.0.0", \
+    "--ctrl",   "type=tcp,port=2322,bindaddr=0.0.0.0", \
+    "--flags", "not-need-init", \
+    "--tpmstate", "dir=/var/lib/swtpm/tpmstate"]
 
-COPY Modelfile .
-COPY main.py .
-COPY web_app.py .
-COPY executor.py .
-
-ENV OLLAMA_HOST=0.0.0.0:11434
-ENV NVIDIA_VISIBLE_DEVICES=all
-ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
-
-EXPOSE 11434 5000
-
-# Start the Ollama server, pull/build the model, then run the agent loop.
-COPY entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
-
-ENTRYPOINT ["/app/entrypoint.sh"]
