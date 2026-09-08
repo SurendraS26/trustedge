@@ -20,13 +20,14 @@ RUN pip install --break-system-packages --no-cache-dir -r requirements.txt
 
 COPY Modelfile .
 COPY main.py .
+COPY web_app.py .
 COPY executor.py .
 
 ENV OLLAMA_HOST=0.0.0.0:11434
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 
-EXPOSE 11434
+EXPOSE 11434 5000
 
 # Start the Ollama server, pull/build the model, then run the agent loop.
 COPY entrypoint.sh /app/entrypoint.sh

@@ -72,6 +72,22 @@ class BaselineStore:
         self.conn.commit()
         log.info("baseline established for %d files", len(self._critical_files()))
 
+    def rebaseline_file(self, path):
+        """Update the recorded hash for one file, e.g. after an authorized
+        edit through the admin API - so the framework's own approved
+        change to policy.json isn't flagged as tampering on the next
+        integrity check."""
+        if not os.path.exists(path):
+            return
+        digest = _sha256_file(path)
+        self.conn.execute(
+            "INSERT INTO baseline (file_path, sha256, recorded_at) VALUES (?, ?, ?) "
+            "ON CONFLICT(file_path) DO UPDATE SET sha256=excluded.sha256, recorded_at=excluded.recorded_at",
+            (path, digest, time.time()),
+        )
+        self.conn.commit()
+        log.info("rebaselined %s after an authorized change", path)
+
     def current_measurements(self):
         """Re-hash every critical file right now."""
         measurements = {}

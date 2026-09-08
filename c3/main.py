@@ -13,11 +13,12 @@ prompt (with a 30s timeout, after which the automated decision stands).
 Every outcome, allowed or blocked, is written to the audit log.
 """
 
+import json
 import logging
 import os
 
 import uvicorn
-from fastapi import FastAPI
+from fastapi import Body, FastAPI, HTTPException
 from pydantic import BaseModel
 
 from modules.interceptor import Interceptor
@@ -50,6 +51,64 @@ class ActionRequest(BaseModel):
 
 @app.get("/health")
 def health():
+    return {"status": "ok"}
+
+
+@app.post("/reload-policy")
+def reload_policy():
+    try:
+        policy_engine.reload()
+        return {"status": "ok", "policy": policy_engine.policy}
+    except Exception as exc:  # noqa: BLE001
+        log.error("failed to reload policy: %s", exc)
+        return {"status": "error", "reason": str(exc)}
+
+
+@app.get("/policy")
+def get_policy():
+    return policy_engine.policy
+
+
+@app.post("/policy")
+def set_policy(new_policy: dict = Body(...)):
+    """
+    Overwrite policy.json and take effect immediately.
+
+    This is an authorized change path (unlike the agent, which never has
+    write access to this file), so it also re-baselines policy.json itself
+    right after writing it - otherwise the very next sensitive action
+    would fail integrity verification as "tampered".
+    """
+    required_keys = {"non_sensitive_actions", "sensitive_actions", "allowed_actions",
+                      "denied_targets", "critical_files"}
+    missing = required_keys - new_policy.keys()
+    if missing:
+        raise HTTPException(status_code=400, detail=f"policy missing required keys: {sorted(missing)}")
+
+    with open(policy_engine.policy_path, "w") as f:
+        json.dump(new_policy, f, indent=2)
+
+    policy_engine.reload()
+    baseline_store.rebaseline_file(policy_engine.policy_path)
+    log.info("policy updated via admin API and re-baselined")
+    return {"status": "ok", "policy": policy_engine.policy}
+
+
+@app.get("/pending")
+def get_pending():
+    return alert_log.list_unresolved_pending()
+
+
+class ApprovalRequest(BaseModel):
+    id: str
+    decision: str
+
+
+@app.post("/approve")
+def approve(request: ApprovalRequest):
+    if request.decision not in ("ALLOW", "BLOCK"):
+        raise HTTPException(status_code=400, detail="decision must be ALLOW or BLOCK")
+    alert_log.resolve_pending(request.id, request.decision)
     return {"status": "ok"}
 
 

@@ -12,6 +12,7 @@ services:
       - FRAMEWORK_URL=http://c3-framework:8000/evaluate
     ports:
       - "11434:11434"
+      - "5000:5000"
     volumes:
       - ollama-data:/root/.ollama
     depends_on:
@@ -49,6 +50,7 @@ services:
       - TCTI=swtpm:host=c2-tpm,port=2321
       - SQLITE_PATH=/data/trustedge.db
       - DISPLAY=${DISPLAY}
+      - ALERT_TIMEOUT_SECONDS=${ALERT_TIMEOUT_SECONDS:-30}
     ports:
       - "8000:8000"
       - "8501:8501"
