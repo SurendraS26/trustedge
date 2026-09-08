@@ -1,0 +1,41 @@
+services:
+  c1-agent:
+    build:
+      context: ./c1
+      dockerfile: Dockerfile
+    container_name: trustedge-c1-agent
+    env_file:
+      - .env
+    environment:
+      - OLLAMA_MODEL=${OLLAMA_MODEL}
+    volumes:
+      - ./shared:/shared
+    ports:
+      - "${OLLAMA_HOST_PORT:-11434}:11434"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    depends_on:
+      - c2-framework
+    restart: unless-stopped
+
+  c2-framework:
+    build:
+      context: ./c2
+      dockerfile: Dockerfile
+    container_name: trustedge-c2-framework
+    env_file:
+      - .env
+    volumes:
+      - ./shared:/shared
+      - tpm-state:/var/lib/swtpm
+      - ./c2/framework/policy_rules.json:/app/framework/policy_rules.json
+      - ./c2/framework/measured_files.json:/app/framework/measured_files.json
+    restart: unless-stopped
+
+volumes:
+  tpm-state:

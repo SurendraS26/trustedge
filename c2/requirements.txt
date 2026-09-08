@@ -1,0 +1,3 @@
+flask
+tpm2-pytss
+cryptography

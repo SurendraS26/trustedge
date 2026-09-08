@@ -1,0 +1,11 @@
+{
+  "measured_files": [
+    "/app/framework/policy_engine.py",
+    "/app/framework/integrity_monitor.py",
+    "/app/framework/attestation_manager.py",
+    "/app/framework/verifier.py",
+    "/app/framework/baseline_store.py",
+    "/app/framework/policy_rules.json",
+    "/app/framework/measured_files.json"
+  ]
+}
