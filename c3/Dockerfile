@@ -1,6 +1,6 @@
 FROM archlinux:latest
 LABEL maintainer="SurendraS26" \
-      org.opencontainers.image.title="trustedge-c3"
+      org.opencontainers.image.title="trustedge-c3" \
       org.opencontainers.image.description="TPM-Assisted Secure Attestation Framework for AI Agents"
 RUN pacman -Syu --noconfirm \
     python \
