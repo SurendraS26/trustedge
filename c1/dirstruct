@@ -1,6 +1,0 @@
-c1/
-├── Dockerfile
-├── entrypoint.sh
-├── requirements.txt
-├── Modelfile
-└── main.py
