@@ -3,8 +3,9 @@ FROM archlinux:latest
 RUN pacman -Syu --noconfirm --needed \
     python python-pip \
     swtpm tpm2-tools tpm2-tss \
-    sqlite curl pkgconfig\
+    sqlite curl \
     zenity gedit \
+    pkgconf base-devel \
     && pacman -Scc --noconfirm
 
 WORKDIR /app
