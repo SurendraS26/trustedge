@@ -33,6 +33,13 @@ services:
       - c2
       - c3
     restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
 
 volumes:
   tpm-data:
