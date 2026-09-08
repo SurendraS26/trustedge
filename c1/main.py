@@ -1,47 +1,141 @@
+"""
+TrustEdge - Container 1: AI Agent
+
+Plain, utilitarian terminal loop. Reads a task from the user, asks the local
+Ollama model for a single next action as JSON, then submits that action to
+the c3 framework's /evaluate endpoint for a policy + attestation decision.
+The action is only ever executed (via executor.py) if c3 returns ALLOW -
+a BLOCK verdict means the action never runs.
+"""
+
+import json
+import logging
+import os
 import sys
-from agent.ollama_client import OllamaClient
-from agent.tool_router import request_action, ActionDenied
+import time
+
+import requests
+
+from executor import execute
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [c1] %(levelname)s %(message)s",
+)
+log = logging.getLogger("agent")
+
+OLLAMA_HOST = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
+MODEL_NAME = "trustedge-agent"
+FRAMEWORK_URL = os.environ.get("FRAMEWORK_URL", "http://c3-framework:8000/evaluate")
+REQUEST_TIMEOUT = 60
 
 
-def run_shell_command(command: str):
+def wait_for_ollama(max_wait_seconds=60):
+    """Block until the local Ollama server responds, or give up."""
+    deadline = time.time() + max_wait_seconds
+    while time.time() < deadline:
+        try:
+            r = requests.get(f"{OLLAMA_HOST}/api/version", timeout=3)
+            if r.status_code == 200:
+                return True
+        except requests.RequestException:
+            pass
+        time.sleep(1)
+    return False
+
+
+def get_agent_decision(task_description):
+    """Call Ollama and parse the model's JSON action proposal."""
+    payload = {
+        "model": MODEL_NAME,
+        "prompt": task_description,
+        "stream": False,
+        "format": "json",
+    }
+    resp = requests.post(f"{OLLAMA_HOST}/api/generate", json=payload, timeout=REQUEST_TIMEOUT)
+    resp.raise_for_status()
+    raw_text = resp.json().get("response", "").strip()
+
     try:
-        request_action("run_shell_command", {"command": command})
-    except ActionDenied as e:
-        print(f"[DENIED] {e.reason}")
-        return
-    import subprocess
-    result = subprocess.run(command, shell=True, capture_output=True, text=True)
-    print(result.stdout or result.stderr)
+        decision = json.loads(raw_text)
+    except json.JSONDecodeError:
+        log.error("model did not return valid JSON: %s", raw_text)
+        return None
+
+    if "action" not in decision or not str(decision["action"]).strip():
+        log.error("model response missing required field: action (raw: %s)", raw_text)
+        return None
+
+    decision.setdefault("target", "")
+    decision.setdefault("reasoning", "")
+
+    return decision
 
 
-def read_file(path: str):
+def submit_for_evaluation(decision):
+    """Send the proposed action to the c3 framework and return its verdict."""
     try:
-        request_action("read_file", {"path": path})
-    except ActionDenied as e:
-        print(f"[DENIED] {e.reason}")
-        return
-    with open(path, "r") as f:
-        print(f.read())
+        resp = requests.post(FRAMEWORK_URL, json=decision, timeout=REQUEST_TIMEOUT)
+        resp.raise_for_status()
+        return resp.json()
+    except requests.RequestException as exc:
+        log.error("could not reach framework at %s: %s", FRAMEWORK_URL, exc)
+        return {"decision": "ERROR", "reason": str(exc)}
+
+
+def print_result(decision, verdict, execution=None):
+    print("-" * 60)
+    print(f"action    : {decision.get('action')}")
+    print(f"target    : {decision.get('target')}")
+    print(f"reasoning : {decision.get('reasoning')}")
+    print(f"verdict   : {verdict.get('decision')}")
+    print(f"reason    : {verdict.get('reason', '')}")
+    if execution is not None:
+        status = "succeeded" if execution.get("ok") else "failed"
+        print(f"executed  : {status}")
+        print(f"output    : {execution.get('output', '')}")
+    print("-" * 60)
 
 
 def main():
-    print("TrustEdge Agent (c1) -- CLI mode. Type a task, or 'exit'.")
-    client = OllamaClient()
+    print("TrustEdge Agent")
+    print("Type a task for the agent, or 'exit' to quit.")
+
+    if not wait_for_ollama():
+        log.error("ollama server did not become ready in time")
+        sys.exit(1)
 
     while True:
         try:
-            task = input("> ").strip()
+            task = input("\ntask> ").strip()
         except (EOFError, KeyboardInterrupt):
+            print("\nexiting")
             break
 
-        if task.lower() in ("exit", "quit"):
-            break
         if not task:
             continue
+        if task.lower() in ("exit", "quit"):
+            break
 
-        response = client.chat(messages=[{"role": "user", "content": task}])
-        print(response.get("message", {}).get("content", ""))
+        decision = get_agent_decision(task)
+        if decision is None:
+            print("agent failed to produce a valid decision, try rephrasing the task")
+            continue
+
+        if decision.get("action") == "none":
+            print(f"agent: no action needed - {decision.get('reasoning')}")
+            continue
+
+        verdict = submit_for_evaluation(decision)
+
+        execution = None
+        if verdict.get("decision") == "ALLOW":
+            execution = execute(decision)
+        else:
+            log.info("action blocked, not executing: %s", verdict.get("reason"))
+
+        print_result(decision, verdict, execution)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

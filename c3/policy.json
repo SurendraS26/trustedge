@@ -1,0 +1,36 @@
+{
+  "non_sensitive_actions": [
+    "read_file",
+    "none"
+  ],
+  "sensitive_actions": [
+    "write_file",
+    "run_command",
+    "network_call",
+    "delete_file"
+  ],
+  "allowed_actions": [
+    "read_file",
+    "write_file",
+    "run_command",
+    "network_call",
+    "delete_file",
+    "none"
+  ],
+  "denied_targets": [
+    "/etc/shadow",
+    "/etc/passwd",
+    "rm -rf /",
+    "shutdown",
+    "reboot"
+  ],
+  "critical_files": [
+    "policy.json",
+    "main.py",
+    "modules/interceptor.py",
+    "modules/verifier.py",
+    "modules/policy_engine.py",
+    "modules/baseline_store.py",
+    "modules/alert_log.py"
+  ]
+}

@@ -1,24 +1,26 @@
 FROM archlinux:latest
 
-RUN pacman -Syu --noconfirm --needed \
-    python python-pip \
-    swtpm tpm2-tools tpm2-tss \
-    sqlite curl \
-    zenity gedit \
-    pkgconf base-devel \
-    && pacman -Scc --noconfirm
+RUN pacman -Syu --noconfirm && \
+    pacman -S --noconfirm \
+        swtpm \
+        tpm2-tss \
+        tpm2-tools \
+        iproute2 && \
+    pacman -Scc --noconfirm
 
-WORKDIR /app
+RUN mkdir -p /var/lib/swtpm
 
-COPY requirements.txt .
-RUN pip install --break-system-packages --no-cache-dir -r requirements.txt
+VOLUME ["/var/lib/swtpm"]
 
-COPY . .
+EXPOSE 2321 2322
 
-RUN mkdir -p /var/lib/swtpm /app/audit
-RUN chmod +x /app/swtpm/entrypoint.sh
-RUN chmod +x /app/tools/trustedge-tricks.sh
-
-EXPOSE 8000
-
-ENTRYPOINT ["/app/swtpm/entrypoint.sh"]
+# --tpmstate persists NVRAM/keys to the mounted volume so the TPM survives
+# container restarts. --server/--ctrl listen over TCP so c3 can reach this
+# TPM across the docker network (a unix socket cannot cross containers).
+ENTRYPOINT ["swtpm", "socket", \
+    "--tpmstate", "dir=/var/lib/swtpm", \
+    "--ctrl", "type=tcp,port=2322,bindaddr=0.0.0.0", \
+    "--server", "type=tcp,port=2321,bindaddr=0.0.0.0", \
+    "--tpm2", \
+    "--flags", "startup-clear", \
+    "--log", "level=1"]
