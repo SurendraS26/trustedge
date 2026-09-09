@@ -45,7 +45,7 @@ Configuration panel for trustedge:
 My Workstation Specs
 --------------------
 <details>
-  <summary>You can see my hardware specifications from here 👇🏻</summary>
+  <summary>You can see my hardware specifications by clicking here 👈🏻</summary>
   <br>
 <table>
   <tr><td style="color:green; font-weight:bold;">OS</td><td>Arch Linux x86_64</td></tr>
