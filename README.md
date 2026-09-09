@@ -42,6 +42,22 @@ Configuration panel for trustedge:
 ./tools/trustedge-tricks.sh
 ```
 
+My Workstation Specs
+--------------------
+<details>
+  <summary>You can see my hardware specifications from here 👇🏻</summary>
+  <br>
+<table>
+  <tr><td style="color:green; font-weight:bold;">OS</td><td>Arch Linux x86_64</td></tr>
+  <tr><td style="color:green; font-weight:bold;">WM</td><td>Hyprland (Wayland)</td></tr>
+  <tr><td style="color:green; font-weight:bold;">CPU</td><td>Intel Core i7-14700HX (16+12) @ 5.50 GHz</td></tr>
+  <tr><td style="color:green; font-weight:bold;">GPU 1</td><td>NVIDIA GeForce RTX 4060 Max-Q / Mobile</td></tr>
+  <tr><td style="color:green; font-weight:bold;">GPU 2</td><td>Intel Raptor Lake-S UHD Graphics @ 1.60 GHz</td></tr>
+  <tr><td style="color:green; font-weight:bold;">Memory</td><td>15.32 GiB</td></tr>
+  <tr><td style="color:green; font-weight:bold;">Disk (/)</td><td>937.73 GiB</td></tr>
+</table>
+</details>
+
 Requirements
 ------------
 - Docker Engine + Docker Compose v2
