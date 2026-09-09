@@ -1,3 +1,5 @@
+![TrustEdge Bare/Box Edition Logo](etc/banner.png)
+
 TrustEdge Bare/Box Edition
 ===========
 
