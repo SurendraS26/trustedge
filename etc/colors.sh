@@ -12,12 +12,12 @@ WHITE='\033[0;97m'
 BOLD='\033[1m'
 NC='\033[0m'
 
-echo -e "${RED}${BOLD}Hello${NC}"
-echo -e "${GREEN}${BOLD}Hello${NC}"
-echo -e "${YELLOW}${BOLD}Hello${NC}"
-echo -e "${BLUE}${BOLD}Hello${NC}"
-echo -e "${PURPLE}${BOLD}Hello${NC}"
-echo -e "${CYAN}${BOLD}Hello${NC}"
-echo -e "${PINK}${BOLD}Hello${NC}"
-echo -e "${ORANGE}${BOLD}Hello${NC}"
-echo -e "${WHITE}${BOLD}Hello${NC}"
+echo -e "${RED}${BOLD}Cutie${NC}"
+echo -e "${GREEN}${BOLD}Cutie${NC}"
+echo -e "${YELLOW}${BOLD}Cutie${NC}"
+echo -e "${BLUE}${BOLD}Cutie${NC}"
+echo -e "${PURPLE}${BOLD}Cutie${NC}"
+echo -e "${CYAN}${BOLD}Cutie${NC}"
+echo -e "${PINK}${BOLD}Cutie${NC}"
+echo -e "${ORANGE}${BOLD}Cutie${NC}"
+echo -e "${WHITE}${BOLD}Cutie${NC}"
