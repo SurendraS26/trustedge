@@ -4,9 +4,9 @@ TrustEdge is a TPM-based security framework for AI agents. It intercepts every a
 
 ## Contents
 
-Docker edition: `docker-compose` installs everything automatically. {Recommended} 
-
-Native edition: Scripts to install it on host to run trustedge.
+**Docker edition**: `docker-compose` installs everything automatically. {Recommended} 
+  
+**Native edition**: Scripts to install it on host to run trustedge.
 
 ## Usage
 
