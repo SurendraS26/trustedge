@@ -1,17 +1,23 @@
 #!/bin/bash
 
-# Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-PURPLE='\033[0;35m'
+RED='\033[0;91m'
+GREEN='\033[0;92m'
+YELLOW='\033[0;93m'
+BLUE='\033[0;94m'
+PURPLE='\033[0;95m'
+CYAN='\033[0;96m'
+PINK='\033[0;101m'
+ORANGE='\033[0;33m'
+WHITE='\033[0;97m'
 BOLD='\033[1m'
 NC='\033[0m'
 
-echo -e "${GREEN}[✓]${NC} ${BOLD}${CYAN}TrustEdge${NC} — Starting..."
-echo -e "${YELLOW}[!]${NC} ${BOLD}Warning:${NC} This is a test"
-echo -e "${RED}[✗]${NC} ${BOLD}Error:${NC} Something failed"
-echo -e "${BLUE}[i]${NC} ${BOLD}Info:${NC} System ready"
-echo -e "${PURPLE}[*]${NC} ${BOLD}Processing...${NC}"
+echo -e "${RED}${BOLD}Hello${NC}"
+echo -e "${GREEN}${BOLD}Hello${NC}"
+echo -e "${YELLOW}${BOLD}Hello${NC}"
+echo -e "${BLUE}${BOLD}Hello${NC}"
+echo -e "${PURPLE}${BOLD}Hello${NC}"
+echo -e "${CYAN}${BOLD}Hello${NC}"
+echo -e "${PINK}${BOLD}Hello${NC}"
+echo -e "${ORANGE}${BOLD}Hello${NC}"
+echo -e "${WHITE}${BOLD}Hello${NC}"
