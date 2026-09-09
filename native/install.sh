@@ -100,7 +100,7 @@ systemctl --user enable --now trustedge-dashboard.service
 # 6. Ollama models
 # ---------------------------------------------------------------------
 echo "==> Pulling Ollama models (this can take a while on first run)"
-ollama pull "${OLLAMA_MODEL:-qwen2.5:3b}"
+ollama pull "${OLLAMA_MODEL:-mistral:7b}"
 ollama pull "${EMBED_MODEL:-mxbai-embed-large}"
 
 echo "==> Building the trustedge-agent model from c1/Modelfile"
