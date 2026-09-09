@@ -13,8 +13,8 @@ for i in $(seq 1 30); do
     sleep 1
 done
 
-echo "[c1] pulling base model ${OLLAMA_MODEL:-qwen2.5:3b}"
-ollama pull "${OLLAMA_MODEL:-qwen2.5:3b}"
+echo "[c1] pulling base model ${OLLAMA_MODEL:-mistral:7b}"
+ollama pull "${OLLAMA_MODEL:-mistral:7b}"
 
 echo "[c1] building trustedge-agent model from Modelfile"
 ollama create trustedge-agent -f /app/Modelfile
