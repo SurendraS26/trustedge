@@ -1,16 +1,3 @@
-"""
-TrustEdge - Container 1: AI Agent
-
-Plain, utilitarian terminal loop. Reads a task from the user, optionally
-grounds it in local documents via rag.py, asks the local Ollama model for
-a single next action as JSON, then submits that action to the c3
-framework's /evaluate endpoint for a policy + attestation decision.
-The action is only ever executed (via executor.py) if c3 returns ALLOW -
-a BLOCK verdict means the action never runs. RAG only enriches the prompt
-sent to the model; it has no say in the ALLOW/BLOCK decision and never
-touches c3 or the executor directly.
-"""
-
 import json
 import logging
 import os

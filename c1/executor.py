@@ -1,13 +1,3 @@
-"""
-Executor
-
-Performs the action the model proposed - but only ever called after the c3
-framework has returned an ALLOW verdict for it. This module has no
-knowledge of policy, attestation, or the operator popup; it trusts that the
-caller (main.py) has already gated the call correctly. It never runs
-anything on its own initiative.
-"""
-
 import logging
 import os
 import subprocess

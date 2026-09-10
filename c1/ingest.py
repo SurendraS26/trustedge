@@ -1,16 +1,3 @@
-"""
-TrustEdge - Container 1: RAG ingestion
-
-Chunks and embeds everything under ./data into a local ChromaDB
-collection, so the agent's decisions in main.py can be grounded in your
-own documents (runbooks, policies, docs) - all locally, no external API.
-
-Runs automatically on every container boot (see entrypoint.sh), and is
-safe to re-run: it rebuilds the store from whatever is currently in
-data/. Drop .txt, .md, or .pdf files in there and restart the c1
-container to pick them up.
-"""
-
 import logging
 import os
 
