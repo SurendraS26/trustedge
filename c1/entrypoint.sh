@@ -2,7 +2,7 @@
 set -e
 
 echo "[*] Ollama Server: Starting"
-ollama serve &
+ollama serve & > /dev/null 2>&1
 OLLAMA_PID=$!
 
 # Wait for the server to accept connections.
