@@ -1,8 +1,3 @@
-"""
-Verify the Policy Engine classifies actions correctly and enforces
-denied-target rules. Run with: pytest tests/test_policy.py
-"""
-
 import os
 import sys
 
