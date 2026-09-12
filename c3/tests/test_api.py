@@ -1,9 +1,3 @@
-"""
-Verify the FastAPI endpoints respond correctly using FastAPI's TestClient
-(in-process, no running server or TPM required for the non-sensitive
-paths). Run with: pytest tests/test_api.py
-"""
-
 import os
 import sys
 
