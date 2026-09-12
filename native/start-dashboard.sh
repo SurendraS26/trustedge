@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
-#
-# Native launcher for the TrustEdge dashboard, run by
-# trustedge-dashboard.service.
-#
+
 set -e
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
