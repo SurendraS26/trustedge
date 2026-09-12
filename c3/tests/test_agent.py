@@ -1,10 +1,3 @@
-"""
-Verify the agent in c1 can produce a valid JSON decision from its Ollama
-model. Requires the c1 container's Ollama server to be reachable (default:
-http://c1-agent:11434 on the trustedge-net docker network). Run with:
-    pytest tests/test_agent.py
-"""
-
 import os
 import sys
 
