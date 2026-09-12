@@ -1,17 +1,3 @@
-"""
-Interceptor
-
-Sits in front of the Policy Engine. Every action proposed by the (untrusted)
-agent in c1 arrives here first. The interceptor's job is narrow and
-deliberate:
-  - validate that the incoming request has the required shape
-  - normalize it into a consistent internal representation
-  - log receipt of the request for the audit trail, before any decision
-    has been made
-
-It never makes an allow/deny decision itself.
-"""
-
 import logging
 import time
 
