@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
-#
-# Stops and removes the TrustEdge systemd --user services. Leaves the
-# repo, .env, TPM state, sqlite database, and pulled Ollama models
-# untouched - only the service wiring is removed. Re-run
-# native/install.sh at any point to reinstall.
-#
+
 set -euo pipefail
 
 SYSTEMD_USER_DIR="$HOME/.config/systemd/user"
