@@ -1,8 +1,3 @@
-"""
-Verify the Interceptor validates and normalizes incoming action requests.
-Run with: pytest tests/test_interceptor.py
-"""
-
 import os
 import sys
 
