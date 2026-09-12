@@ -1,16 +1,3 @@
-"""
-Alert Log
-
-Two responsibilities:
-  1. Persist every evaluated action (allowed, blocked, or reviewed) to a
-     SQLite audit log that the Streamlit dashboard reads from.
-  2. For sensitive actions, show the operator a desktop popup with the
-     action, target, and reasoning, and ALLOW/BLOCK buttons with a 30s
-     timeout. Uses Zenity when an X11 display is available, and falls back
-     to a plain notify-send notification (informational only, no
-     interactive response) otherwise.
-"""
-
 import json
 import logging
 import os

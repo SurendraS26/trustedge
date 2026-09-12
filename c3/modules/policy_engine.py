@@ -1,17 +1,3 @@
-"""
-Policy Engine
-
-First checkpoint in the pipeline. Deterministic, rule-based classification
-of an agent's proposed action:
-  - Unknown actions are denied outright.
-  - Non-sensitive actions (e.g. read_file) are allowed immediately, with no
-    attestation overhead.
-  - Sensitive actions (e.g. write_file, run_command) are passed on for
-    integrity verification and attestation before a decision is made.
-  - Any action whose target matches a denied pattern is blocked regardless
-    of classification.
-"""
-
 import json
 import logging
 import os
