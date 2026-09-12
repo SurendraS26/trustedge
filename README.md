@@ -80,6 +80,8 @@ References
 - [swtpm-arch-docker](https://github.com/SurendraS26/swtpm-arch-docker) — SWTPM on Arch Linux, by Surendra S
 - [swtpm-docker](https://github.com/danieltrick/swtpm-docker) — SWTPM Docker images, by Daniel Trick
 - [Ollama AI agent](https://www.cloudvyn.com/blog/local-ai-agent-python-ollama-langchain-rag) — Build AI agent using Ollama, by Abhishek Madoliya
+- [Ollama Docs](https://docs.ollama.com/linux) — Ollama documentation for Linux.
+
 
 License
 -------
