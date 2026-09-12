@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
-#
-# Native launcher for the TrustEdge framework API (c3), run by
-# trustedge-framework.service. Waits for the local swtpm, provisions the
-# attestation key, then starts the FastAPI app - the same sequence
-# c3/entrypoint.sh did inside the container, just against a local venv
-# and localhost TPM instead of a docker network.
-#
+
 set -e
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
