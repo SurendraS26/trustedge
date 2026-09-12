@@ -1,16 +1,4 @@
 #!/usr/bin/env bash
-#
-# trustedge-tricks.sh - a winetricks-style zenity front end for TrustEdge.
-#
-# One menu, everything categorized, nothing edited by hand. This replaces
-# every other way of touching TrustEdge's configuration: live policy
-# (via c3's admin API), pending human approvals, runtime settings in
-# .env, and the docker compose stack itself (build / start / stop /
-# rebuild / logs / dashboard).
-#
-# Run this on the HOST (not inside a container) so zenity has a real X11
-# display. Requires: zenity, curl, jq, docker (with the compose plugin).
-#
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
