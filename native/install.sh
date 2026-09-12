@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
-#
-# TrustEdge - native installer (Arch Linux, no containers).
-#
-# Sets up swtpm, a Python venv per component, systemd --user services for
-# the TPM/framework/dashboard, and pulls the Ollama models. Run once from
-# a normal user account with sudo access; safe to re-run.
-#
+
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
