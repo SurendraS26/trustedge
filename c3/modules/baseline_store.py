@@ -1,13 +1,3 @@
-"""
-Baseline Store
-
-Maintains the known-good SHA-256 hashes of the framework's own critical
-files (policy config, enforcement modules) in SQLite. On first run it
-measures the files listed in policy.json's "critical_files" and records
-them as the trusted baseline. On every later run it re-measures the same
-files so the Verifier can detect tampering before it trusts a decision.
-"""
-
 import hashlib
 import json
 import logging
