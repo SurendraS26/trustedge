@@ -1,11 +1,3 @@
-"""
-TrustEdge Dashboard
-
-Utilitarian Minimalist Streamlit view of the audit log: a single, clean
-table with proper column headers and structured rows. No charts, no
-colors beyond a plain ALLOW/BLOCK/REVIEW text marker, no clutter.
-"""
-
 import os
 import sys
 
@@ -41,7 +33,7 @@ PLAIN_TABLE_CSS = """
 """
 st.markdown(PLAIN_TABLE_CSS, unsafe_allow_html=True)
 
-st.title("TrustEdge Audit Log")
+st.title("TE Bare/Box Audit Log")
 
 alert_log = AlertLog()
 
