@@ -1,18 +1,3 @@
-"""
-Exercise the notification path directly: sends a dummy action through
-AlertLog.prompt_operator and reports whether Zenity or notify-send fired,
-and what the operator chose (if anything).
-
-This test requires a human to actually click ALLOW or BLOCK when the
-Zenity popup appears, so it is not run automatically by pytest's default
-collection assumptions - run it directly:
-
-    python tests/test_notification.py
-
-Or, to also assert it under pytest, pass --run-interactive:
-    pytest tests/test_notification.py --run-interactive
-"""
-
 import os
 import sys
 
