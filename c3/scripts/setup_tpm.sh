@@ -1,13 +1,4 @@
 #!/usr/bin/env bash
-#
-# Idempotent TPM provisioning for TrustEdge.
-#
-# Creates a Storage Root Key (primary) and an Attestation Key (AK) inside
-# the swtpm running in c2, and persists the AK at a fixed handle so it
-# survives container restarts as long as the c2 tpmstate volume persists.
-# The AK's public key/name are copied to /data so the Verifier can use them
-# without needing a live TPM session for signature checks.
-
 set -e
 
 AK_HANDLE="0x81010001"
