@@ -1,14 +1,3 @@
-"""
-Verify the swtpm in c2 is running and responsive, and that the persisted
-Attestation Key from scripts/setup_tpm.sh is readable.
-
-Requires TPM2TOOLS_TCTI (or the TCTI env var) to point at the running
-swtpm, e.g. swtpm:host=c2-tpm,port=2321. Run with:
-    pytest tests/test_tpm.py
-or directly:
-    python tests/test_tpm.py
-"""
-
 import os
 import subprocess
 import sys
