@@ -1,20 +1,3 @@
-"""
-TrustEdge - Container 3: Framework
-
-FastAPI service exposing /evaluate. Every action proposed by the agent in
-c1 flows through, in order:
-
-    Interceptor -> Policy Engine -> Baseline Store -> Verifier (TPM) -> Alert Log
-
-Non-sensitive actions are allowed immediately by the Policy Engine.
-Sensitive actions must pass integrity verification (baseline hash check)
-and TPM attestation before the operator is given a final ALLOW/BLOCK
-prompt (with a 30s timeout). Execution only ever happens on an explicit
-operator ALLOW - a BLOCK, or no response within the timeout, both stop
-the action.
-Every outcome, allowed or blocked, is written to the audit log.
-"""
-
 import json
 import logging
 import os
