@@ -1,12 +1,5 @@
 #!/usr/bin/env bash
-#
-# Native launcher for the TrustEdge agent (c1). Run this in a terminal
-# whenever you want to talk to the agent - it's interactive, so unlike
-# the TPM/framework/dashboard it is NOT a background systemd service.
-#
-# Requires the native Ollama service running (systemctl status ollama)
-# and native/install.sh to have already pulled the models once.
-#
+
 set -e
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
