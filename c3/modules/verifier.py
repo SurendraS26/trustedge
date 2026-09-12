@@ -1,18 +1,3 @@
-"""
-Attestation Manager + Verifier
-
-Talks to the swtpm running in c2 (over TCP, via tpm2-tools' TCTI) to:
-  1. Extend a PCR with a digest that represents the current measured state
-     of the framework's critical files (see baseline_store).
-  2. Request a signed Quote over that PCR, bound to a fresh nonce so replay
-     of an old quote cannot pass verification.
-  3. Verify the quote's signature, nonce, and PCR contents against the
-     Attestation Key persisted by scripts/setup_tpm.sh.
-
-PCR 16 is used (a debug/application PCR, not one of the firmware-reserved
-PCRs 0-7), which is the convention used throughout this prototype.
-"""
-
 import logging
 import os
 import secrets
