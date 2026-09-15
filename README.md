@@ -32,10 +32,6 @@ Audit dashboard using [`streamlit`](https://streamlit.io/):
 
 Use your own documents to guide the Agent
 
-```sh
-cp <your.txt/md/pdf> trustedge/c1/data/
-docker compose up
-```
 
 My Workstation Specs
 --------------------
