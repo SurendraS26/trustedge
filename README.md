@@ -37,11 +37,6 @@ cp <your.txt/md/pdf> trustedge/c1/data/
 docker compose up
 ```
 
-Configuration panel for trustedge:
-```sh
-./tools/trustedge-tricks.sh
-```
-
 My Workstation Specs
 --------------------
 <table>
