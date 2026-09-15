@@ -59,7 +59,6 @@ Requirements
 - Mistral AI - `mistral:7b` (Optional)
 - Docker Engine + Docker Compose v2
 - Linux host (swtpm's TCP mode and X11 popups are the tested path)
-- `zenity`, `curl`, and `jq` on the host, for `trustedge-tricks.sh`
 - NVIDIA GPU + NVIDIA Container Toolkit, for GPU-accelerated `c1`
 
 > Warning: Use a GPU for running models.
