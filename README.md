@@ -44,9 +44,6 @@ Configuration panel for trustedge:
 
 My Workstation Specs
 --------------------
-<details>
-  <summary>You can see my hardware specifications by clicking here 👈</summary>
-  <br>
 <table>
   <tr><td>OS</td><td>Arch Linux x86_64</td></tr>
   <tr><td>WM</td><td>Hyprland (Wayland)</td></tr>
@@ -56,7 +53,6 @@ My Workstation Specs
   <tr><td>Memory</td><td>15.32 GiB</td></tr>
   <tr><td>Disk (/)</td><td>937.73 GiB</td></tr>
 </table>
-</details>
 
 Requirements
 ------------
