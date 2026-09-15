@@ -56,7 +56,7 @@ My Workstation Specs
 
 Requirements
 ------------
-- <img src="https://avatars.githubusercontent.com/u/132372032?s=200&v=4" height="13" alt="Mistral" /> Mistral AI - `mistral:7b` (Optional)
+- Mistral AI - `mistral:7b` (Optional)
 - Docker Engine + Docker Compose v2
 - Linux host (swtpm's TCP mode and X11 popups are the tested path)
 - `zenity`, `curl`, and `jq` on the host, for `trustedge-tricks.sh`
