@@ -16,7 +16,8 @@ echo "[*] pulling base model ${OLLAMA_MODEL:-mistral:7b}"
 ollama pull "${OLLAMA_MODEL:-mistral:7b}"
 
 echo "[*] building trustedge-agent model from Modelfile"
-ollama create trustedge-agent -f /app/Modelfile
+sed "s|^FROM .*|FROM ${OLLAMA_MODEL:-mistral:7b}|" /app/Modelfile > /tmp/Modelfile
+ollama create trustedge-agent -f /tmp/Modelfile
 
 echo "[*] pulling embedding model ${EMBED_MODEL:-mxbai-embed-large}"
 ollama pull "${EMBED_MODEL:-mxbai-embed-large}"
@@ -28,3 +29,4 @@ echo "[*] launching agent"
 python main.py
 
 kill "$OLLAMA_PID" 2>/dev/null || true
+
