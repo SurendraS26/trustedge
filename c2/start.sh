@@ -18,7 +18,7 @@ echo -e "${CYAN}[*]${NC} TPM will running in these below ip's only"
 ip -br addr show
 echo -e "${GREEN}server -->${NC} PORT=$TPMSERVE"
 echo -e "${GREEN}ctrl   -->${NC} PORT=$TPMCTRL"
-echo -e "${CYAN}To stop container${CYAN} ${NC}'${BOLD}docker stop <eg: trustedge-c1>${BOLD}'${NC}"
+echo -e "${CYAN}To stop container${CYAN} ${NC}'${BOLD}docker stop <container_id>${BOLD}'${NC}"
 /usr/bin/swtpm \
 	socket \
 	--tpm2 \
