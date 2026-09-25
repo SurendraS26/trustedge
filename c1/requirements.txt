@@ -1,6 +1,0 @@
-requests
-langchain
-langchain-ollama
-langchain-community
-chromadb
-pypdf
