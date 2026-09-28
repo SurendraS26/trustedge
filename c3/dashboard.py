@@ -36,4 +36,3 @@ def render():
     with open(tmp_path, "w") as f:
         f.write("\n".join(lines) + "\n")
     os.replace(tmp_path, DASHBOARD_PATH)
-

@@ -1,38 +1,26 @@
 #!/usr/bin/env bash
-set -e
+export DISPLAY=:1
+RUNDIR=/tmp/runtime-trustedge
 
-# Hyprland refuses to run as root, so the runtime dir it needs has to
-# be owned by the non-root user before anything starts as that user.
-mkdir -p "$XDG_RUNTIME_DIR"
-chown trustedge:trustedge "$XDG_RUNTIME_DIR"
-chmod 700 "$XDG_RUNTIME_DIR"
+mkdir -p "$RUNDIR" /home/trustedge/.vnc
+echo "${VNC_PASSWORD:-trustedge}" | vncpasswd -f > /home/trustedge/.vnc/passwd
+chmod 600 /home/trustedge/.vnc/passwd
+chmod 700 "$RUNDIR"
+chown -R trustedge:trustedge "$RUNDIR" /home/trustedge/.vnc
 
-echo "[c4] starting hyprland (headless) as trustedge"
-su - trustedge -c "export XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR WAYLAND_DISPLAY=$WAYLAND_DISPLAY WLR_BACKENDS=$WLR_BACKENDS; exec dbus-run-session -- Hyprland" > /tmp/hyprland.log 2>&1 &
+echo "[c4] starting Xvnc"
+su - trustedge -c "exec Xvnc :1 -geometry ${VNC_GEOMETRY:-1280x800} -depth 24 -rfbport 5901 -rfbauth /home/trustedge/.vnc/passwd -SecurityTypes VncAuth" > /tmp/xvnc.log 2>&1 &
 
 for i in $(seq 1 30); do
-    if [ -S "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY" ]; then
-        break
-    fi
+    xdpyinfo -display :1 >/dev/null 2>&1 && break
     sleep 1
 done
 
-echo "[c4] starting wayvnc as trustedge"
-# NOTE: wayvnc runs unauthenticated here (no VNC password). It is only
-# reachable inside trustedge-network, not published to the host beyond
-# the noVNC bridge on 6080 - see SETUP.md for the tradeoff this makes.
-su - trustedge -c "export XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR WAYLAND_DISPLAY=$WAYLAND_DISPLAY; exec wayvnc 0.0.0.0 5900" > /tmp/wayvnc.log 2>&1 &
+echo "[c4] starting XFCE4"
+su - trustedge -c "export DISPLAY=:1 XDG_RUNTIME_DIR=$RUNDIR; exec dbus-run-session -- startxfce4" > /tmp/xfce.log 2>&1 &
 
-for i in $(seq 1 30); do
-    if (echo > /dev/tcp/127.0.0.1/5900) 2>/dev/null; then
-        break
-    fi
-    sleep 1
-done
+echo "[c4] starting exec listener"
+su - trustedge -c "export DISPLAY=:1 XDG_RUNTIME_DIR=$RUNDIR; cd /app && exec python exec_listener.py" > /tmp/exec_listener.log 2>&1 &
 
-echo "[c4] starting exec listener on :9000 as trustedge"
-su - trustedge -c "export XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR WAYLAND_DISPLAY=$WAYLAND_DISPLAY; cd /app && exec python exec_listener.py" > /tmp/exec_listener.log 2>&1 &
-
-echo "[c4] starting noVNC on :6080"
-exec /opt/novnc/utils/novnc_proxy --vnc localhost:5900 --listen 6080
-
+echo "[c4] desktop ready: http://localhost:6080/vnc.html (password: ${VNC_PASSWORD:-trustedge})"
+exec /opt/novnc/utils/novnc_proxy --vnc localhost:5901 --listen 6080

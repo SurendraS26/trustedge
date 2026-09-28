@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Framework: policy + attestation + dashboard. Run this third.
-docker run -it --rm \
+docker run -d --rm \
   --name trustedge-c3 \
   --network trustedge-network \
   -p 8000:8000 \

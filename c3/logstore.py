@@ -45,4 +45,3 @@ def recent(limit=20):
     ).fetchall()
     conn.close()
     return [dict(r) for r in rows]
-

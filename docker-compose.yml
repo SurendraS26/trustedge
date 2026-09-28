@@ -1,6 +1,9 @@
+name: trustedge
+
 services:
   trustedge-c2:
     build: ./c2
+    image: trustedge-c2
     container_name: trustedge-c2
     ports:
       - "2321-2322:2321-2322"
@@ -11,6 +14,7 @@ services:
 
   trustedge-c4:
     build: ./c4
+    image: trustedge-c4
     container_name: trustedge-c4
     ports:
       - "6080:6080"
@@ -20,6 +24,7 @@ services:
 
   trustedge-c3:
     build: ./c3
+    image: trustedge-c3
     container_name: trustedge-c3
     environment:
       - TPM2TOOLS_TCTI=swtpm:host=trustedge-c2,port=2321
@@ -31,29 +36,39 @@ services:
     depends_on:
       - trustedge-c2
       - trustedge-c4
-    stdin_open: true
-    tty: true
     networks:
       - trustedge-network
 
   trustedge-c1:
     build: ./c1
+    image: trustedge-c1
     container_name: trustedge-c1
     environment:
       - OLLAMA_MODEL=qwen2.5:7b
       - FRAMEWORK_WS=ws://trustedge-c3:8000/agent-link
+    volumes:
+      - trustedge-ollama:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
     depends_on:
       - trustedge-c3
-    stdin_open: true
-    tty: true
     networks:
       - trustedge-network
 
 volumes:
   trustedge-tpm-state:
+    name: trustedge-tpm-state
   trustedge-framework-data:
+    name: trustedge-framework-data
+  trustedge-ollama:
+    name: trustedge-ollama
 
 networks:
   trustedge-network:
+    name: trustedge-network
     driver: bridge
-

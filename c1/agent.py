@@ -26,7 +26,15 @@ SYSTEM_PROMPT = (
     "anything yourself - you only propose. Respond with ONLY a single JSON "
     "object matching the given schema. If action is run_command, target "
     "MUST be a complete, self-contained bash script. If the task is already "
-    "satisfied or impossible, use action done or error with target null."
+    "satisfied or impossible, use action done or error with target null.\n\n"
+    "The script runs on a sandbox machine with these facts:\n"
+    "- OS is Arch Linux. It is NOT Debian or Ubuntu. Never use apt, apt-get, dnf or yum.\n"
+    "- Package manager is pacman. Install with: sudo pacman -Sy --noconfirm --needed <package>\n"
+    "- Desktop is XFCE4. You run as user 'trustedge' with passwordless sudo.\n"
+    "- Chromium, xfce4-terminal and Thunar (file manager) are already installed.\n"
+    "- Launch GUI apps in the background so the script finishes, for example: "
+    "chromium 'https://example.com' >/dev/null 2>&1 &\n"
+    "- Scripts must never wait for keyboard input."
 )
 
 
@@ -87,7 +95,7 @@ async def run_task(task: str):
                 print()
                 print(message["script"])
                 print()
-                answer = input("accept y/n: ").strip().lower()
+                answer = (await asyncio.to_thread(input, "accept y/n: ")).strip().lower()
                 decision_word = "ALLOW" if answer == "y" else "BLOCK"
                 await ws.send(json.dumps({"decision": decision_word}))
 
@@ -120,4 +128,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

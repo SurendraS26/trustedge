@@ -1,40 +1,42 @@
 import os
+import secrets
+import shutil
 import subprocess
-import uuid
+import tempfile
 
-PCR_INDEX = "16"
+AK_HANDLE = "0x81010001"
+PCR_INDEX = 16
+PCR_BANK = "sha256"
+DATA_DIR = os.path.dirname(os.environ.get("SQLITE_PATH", "/data/trustedge.db")) or "/data"
+AK_PUB = os.path.join(DATA_DIR, "ak.pub")
+
+
+def _run(cmd):
+    result = subprocess.run(cmd, capture_output=True, text=True, timeout=20)
+    if result.returncode != 0:
+        raise RuntimeError(f"{cmd[0]} failed: {result.stderr.strip()[-200:]}")
+    return result.stdout
 
 
 class Verifier:
-    def __init__(self):
-        self.tcti = os.environ.get("TPM2TOOLS_TCTI", "swtpm:host=trustedge-c2,port=2321")
-        os.environ["TPM2TOOLS_TCTI"] = self.tcti
-
-    def _run(self, args):
-        return subprocess.run(args, capture_output=True, text=True, timeout=15)
-
     def attest(self, digest_hex: str) -> dict:
-        extend = self._run(["tpm2_pcrextend", f"{PCR_INDEX}:sha256={digest_hex}"])
-        if extend.returncode != 0:
-            return {"attested": False, "reason": f"pcrextend failed: {extend.stderr.strip()}"}
+        if not os.path.exists(AK_PUB):
+            return {"attested": False, "reason": "attestation key not provisioned"}
 
-        nonce = uuid.uuid4().hex
-        quote = self._run([
-            "tpm2_quote", "-c", "0x81000001",
-            "-l", f"sha256:{PCR_INDEX}",
-            "-q", nonce,
-            "-m", "/tmp/quote.msg", "-s", "/tmp/quote.sig", "-o", "/tmp/quote.pcrs",
-        ])
-        if quote.returncode != 0:
-            return {"attested": False, "reason": f"quote failed: {quote.stderr.strip()}"}
+        tmpdir = tempfile.mkdtemp(prefix="quote-")
+        msg = os.path.join(tmpdir, "quote.msg")
+        sig = os.path.join(tmpdir, "quote.sig")
+        pcrs = os.path.join(tmpdir, "pcrs.out")
+        nonce = secrets.token_hex(16)
 
-        check = self._run([
-            "tpm2_checkquote", "-c", "0x81000001",
-            "-m", "/tmp/quote.msg", "-s", "/tmp/quote.sig", "-f", "/tmp/quote.pcrs",
-            "-q", nonce,
-        ])
-        if check.returncode != 0:
-            return {"attested": False, "reason": f"checkquote failed: {check.stderr.strip()}"}
-
-        return {"attested": True, "reason": "attested"}
-
+        try:
+            _run(["tpm2_pcrextend", f"{PCR_INDEX}:{PCR_BANK}={digest_hex}"])
+            _run(["tpm2_quote", "-c", AK_HANDLE, "-l", f"{PCR_BANK}:{PCR_INDEX}",
+                  "-q", nonce, "-m", msg, "-s", sig, "-o", pcrs, "-g", PCR_BANK])
+            _run(["tpm2_checkquote", "-u", AK_PUB, "-m", msg, "-s", sig,
+                  "-f", pcrs, "-g", PCR_BANK, "-q", nonce])
+            return {"attested": True, "reason": "quote verified"}
+        except (RuntimeError, subprocess.TimeoutExpired) as exc:
+            return {"attested": False, "reason": str(exc)}
+        finally:
+            shutil.rmtree(tmpdir, ignore_errors=True)

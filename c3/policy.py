@@ -16,4 +16,3 @@ def classify(script: str) -> dict:
         if pattern.search(script):
             return {"decision": "BLOCK", "reason": f"script matches denied pattern: {pattern.pattern}"}
     return {"decision": "REVIEW", "reason": "no denied patterns found, needs confirmation"}
-

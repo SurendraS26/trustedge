@@ -1,3 +1,4 @@
+import asyncio
 import hashlib
 import json
 import logging
@@ -28,7 +29,7 @@ def call_c4(script: str) -> dict:
     req = urllib.request.Request(
         C4_EXEC_URL, data=body, headers={"Content-Type": "application/json"}, method="POST",
     )
-    with urllib.request.urlopen(req, timeout=60) as resp:
+    with urllib.request.urlopen(req, timeout=300) as resp:
         return json.loads(resp.read().decode())
 
 
@@ -68,7 +69,7 @@ async def _handle_proposal(websocket: WebSocket, payload: dict):
         return
 
     digest = hashlib.sha256(f"{script}:{time.time()}".encode()).hexdigest()
-    attestation = Verifier().attest(digest)
+    attestation = await asyncio.to_thread(Verifier().attest, digest)
     if not attestation["attested"]:
         reason = f"attestation failed: {attestation['reason']}"
         logstore.record(script, reasoning, "BLOCK", reason)
@@ -94,7 +95,7 @@ async def _handle_proposal(websocket: WebSocket, payload: dict):
     log.info("approved, executing on c4: %s", script[:60])
 
     try:
-        exec_result = call_c4(script)
+        exec_result = await asyncio.to_thread(call_c4, script)
     except Exception as exc:  # noqa: BLE001
         await websocket.send_json({"type": "result", "ok": False, "output": f"could not reach c4: {exc}"})
         return
@@ -106,4 +107,3 @@ async def _handle_proposal(websocket: WebSocket, payload: dict):
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("FRAMEWORK_PORT", 8000)))
-
