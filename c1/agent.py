@@ -112,10 +112,20 @@ async def run_task(task: str):
 
 
 def main():
-    print("""
-    [ ascii art space ]
-    """)
-    print("trustedge-c1")
+    ascii_art="""
+    ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄ ▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄  ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄
+    █▄▄ ▄▄█ █ ▄▄▄ █ █ █ █ █ █ ▄▄▄▄█ █▄▄ ▄▄█ █ ▄▄▄▄█ █ ▄▄ ▀█ █ ▄▄▄▄█ █ ▄▄▄▄█
+      █ █   █ ▄ ▄▄█ █ █▄█ █ █▄▄▄▄ █   █ █   █ ▄▄▄█▄ █ █▄▀ █ █ █▄▄ █ █ ▄▄▄█▄
+      █▄█   █▄█▄▄▄█ █▄▄▄▄▄█ █▄▄▄▄▄█   █▄█   █▄▄▄▄▄█ █▄▄▄▄█▀ █▄▄▄▄▄█ █▄▄▄▄▄█
+        
+    Trustedge - TPM-Assisted Secure Attestation Framework for AI Agents
+    Author: Surendra S
+    GitHub: github.com/SurendraS26/trustedge
+
+
+    """
+    print(ascii_art)
+    print("container: trustedge-c1")
     print("type a task and press enter, or 'q' to quit")
     while True:
         task = input("> ").strip()
