@@ -118,7 +118,7 @@ def main():
     print("\033[0;37m  \033[0;35m88\033[0;37m    \033[0;35m88\"Yb\033[0;37m   \033[0;35mY8\033[0;37m   \033[0;35m8P\033[0;37m  \033[0;35mo.`Y8b\033[0;37m    \033[0;35m88\033[0;37m    \033[0;35m88\"\"\033[0;37m     \033[0;35m8I\033[0;37m  \033[0;35mdY\033[0;37m  \033[0;35mYb\033[0;37m  \033[0;35m\"88\033[0;37m  \033[0;35m88\"\"\033[0;37m   \033[0m")
     print("\033[0;37m  \033[0;90m88\033[0;37m    \033[0;90m88\033[0;37m  \033[0;90mYb\033[0;37m  \033[0;90m`YbodP'\033[0;37m  \033[0;90m8bodP'\033[0;37m    \033[0;90m88\033[0;37m    \033[0;90m888888\033[0;37m  \033[0;90m8888Y\"\033[0;37m    \033[0;90mYboodP\033[0;37m  \033[0;90m888888\033[0;37m \033[0m")
     print("")
-    print("Trustedge - TPM-Assisted Secure Attestation Framework for AI Agentsi\n")
+    print("   Trustedge - TPM-Assisted Secure Attestation Framework for AI Agents\n")
     print("Author: Surendra S")
     print("GitHub: github.com/SurendraS26/trustedge\n")
     print("container: trustedge-c1")
