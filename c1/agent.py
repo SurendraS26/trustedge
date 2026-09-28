@@ -112,14 +112,15 @@ async def run_task(task: str):
 
 
 def main():
+    print("")
     print("\033[0;97m888888\033[0;37m  \033[0;97m88\"\"Yb\033[0;37m  \033[0;97m88\033[0;37m   \033[0;97m88\033[0;37m  \033[0;97m.dP\"Y8\033[0;37m  \033[0;97m888888\033[0;37m  \033[0;97m888888\033[0;37m  \033[0;97m8888b.\033[0;37m    \033[0;97mdP\"\"b8\033[0;37m  \033[0;97m888888\033[0;37m \033[0m")
     print("\033[0;37m  \033[0;95m88\033[0;37m    \033[0;95m88__dP\033[0;37m  \033[0;95m88\033[0;37m   \033[0;95m88\033[0;37m  \033[0;95m`Ybo.\"\033[0;37m    \033[0;95m88\033[0;37m    \033[0;95m88__\033[0;37m     \033[0;95m8I\033[0;37m  \033[0;95mYb\033[0;37m  \033[0;95mdP\033[0;37m   \033[0;95m`\"\033[0;37m  \033[0;95m88__\033[0;37m   \033[0m")
     print("\033[0;37m  \033[0;35m88\033[0;37m    \033[0;35m88\"Yb\033[0;37m   \033[0;35mY8\033[0;37m   \033[0;35m8P\033[0;37m  \033[0;35mo.`Y8b\033[0;37m    \033[0;35m88\033[0;37m    \033[0;35m88\"\"\033[0;37m     \033[0;35m8I\033[0;37m  \033[0;35mdY\033[0;37m  \033[0;35mYb\033[0;37m  \033[0;35m\"88\033[0;37m  \033[0;35m88\"\"\033[0;37m   \033[0m")
     print("\033[0;37m  \033[0;90m88\033[0;37m    \033[0;90m88\033[0;37m  \033[0;90mYb\033[0;37m  \033[0;90m`YbodP'\033[0;37m  \033[0;90m8bodP'\033[0;37m    \033[0;90m88\033[0;37m    \033[0;90m888888\033[0;37m  \033[0;90m8888Y\"\033[0;37m    \033[0;90mYboodP\033[0;37m  \033[0;90m888888\033[0;37m \033[0m")
-
-    print("Trustedge - TPM-Assisted Secure Attestation Framework for AI Agents")
+    print("")
+    print("Trustedge - TPM-Assisted Secure Attestation Framework for AI Agentsi\n")
     print("Author: Surendra S")
-    print("GitHub: github.com/SurendraS26/trustedge")
+    print("GitHub: github.com/SurendraS26/trustedge\n")
     print("container: trustedge-c1")
     print("type a task and press enter, or 'q' to quit")
     while True:
