@@ -34,13 +34,26 @@ Sandbox Desktop using [`noVNC`](https://github.com/novnc/noVNC):
 ```
 
 
-
-Audit dashboard using [`streamlit`](https://streamlit.io/): 
+Audit dashboard using [`glow`](https://github.com/charmbracelet/glow): 
+```sh
+./scripts/dashboard.sh
 ```
-<Your-Web-browser> http://localhost:8501
+
+Decision Logs JSON:
+```sh
+<Your-Web-browser> http://localhost:8000/log
 ```
 
-Use your own documents to guide the Agent
+TPM PCR's and GPU live view:
+```sh
+./scripts/tpm-view.sh
+./scripts/gpu-view.sh
+```
+
+Shutdown Trustedge
+```sh
+docker compose down
+```
 
 
 My Workstation Specs
