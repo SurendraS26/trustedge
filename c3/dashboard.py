@@ -1,6 +1,5 @@
 import os
 import time
-
 import logstore
 
 DASHBOARD_PATH = os.environ.get("DASHBOARD_PATH", "/data/dashboard.md")
@@ -11,7 +10,9 @@ def render():
 
     lines = [
         "```",
-        "[ ascii art space ]",
+        "╺┳┓┏━┓┏━┓╻ ╻┏┓ ┏━┓┏━┓┏━┓╺┳┓",
+        " ┃┃┣━┫┗━┓┣━┫┣┻┓┃ ┃┣━┫┣┳┛ ┃┃",
+        "╺┻┛╹ ╹┗━┛╹ ╹┗━┛┗━┛╹ ╹╹┗╸╺┻┛",
         "```",
         "",
         "# trustedge-c3",
