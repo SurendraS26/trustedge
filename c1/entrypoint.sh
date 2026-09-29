@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-MODEL="${OLLAMA_MODEL:-qwen2.5:7b}"
+MODEL="${OLLAMA_MODEL:-qwen2.5-coder:7b}"
 
 ollama serve > /var/log/ollama.log 2>&1 &
 OLLAMA_PID=$!

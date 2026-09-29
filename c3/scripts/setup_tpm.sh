@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 set -e
 
 AK_HANDLE="0x81010001"

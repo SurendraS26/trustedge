@@ -17,10 +17,16 @@ for i in $(seq 1 30); do
 done
 
 echo "[c4] starting XFCE4"
-su - trustedge -c "export DISPLAY=:1 XDG_RUNTIME_DIR=$RUNDIR; exec dbus-run-session -- startxfce4" > /tmp/xfce.log 2>&1 &
+su - trustedge -c "export DISPLAY=:1 XDG_RUNTIME_DIR=$RUNDIR; dbus-run-session -- bash -c 'echo \$DBUS_SESSION_BUS_ADDRESS > $RUNDIR/dbus-address; exec startxfce4'" > /tmp/xfce.log 2>&1 &
+
+for i in $(seq 1 30); do
+    [ -f "$RUNDIR/dbus-address" ] && break
+    sleep 1
+done
 
 echo "[c4] starting exec listener"
-su - trustedge -c "export DISPLAY=:1 XDG_RUNTIME_DIR=$RUNDIR; cd /app && exec python exec_listener.py" > /tmp/exec_listener.log 2>&1 &
+BUS_ADDR="$(cat "$RUNDIR/dbus-address" 2>/dev/null)"
+su - trustedge -c "export DISPLAY=:1 XDG_RUNTIME_DIR=$RUNDIR DBUS_SESSION_BUS_ADDRESS='$BUS_ADDR'; cd /app && exec python exec_listener.py" > /tmp/exec_listener.log 2>&1 &
 
 echo "[c4] desktop ready: http://localhost:6080/vnc.html (password: ${VNC_PASSWORD:-trustedge})"
 exec /opt/novnc/utils/novnc_proxy --vnc localhost:5901 --listen 6080

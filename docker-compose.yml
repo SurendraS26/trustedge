@@ -44,7 +44,7 @@ services:
     image: trustedge-c1
     container_name: trustedge-c1
     environment:
-      - OLLAMA_MODEL=qwen2.5:7b
+      - OLLAMA_MODEL=qwen2.5-coder:7b
       - FRAMEWORK_WS=ws://trustedge-c3:8000/agent-link
     volumes:
       - trustedge-ollama:/root/.ollama

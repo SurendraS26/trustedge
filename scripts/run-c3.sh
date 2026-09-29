@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Framework (interceptor, policy, TPM attestation, audit log)
 docker run -d --rm \
   --name trustedge-c3 \
   --network trustedge-network \

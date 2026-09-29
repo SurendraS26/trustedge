@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Starts all four containers in the background. Then use:
+#   ./scripts/agent.sh       - talk to the agent
+#   ./scripts/dashboard.sh   - live dashboard
 set -e
 cd "$(dirname "$0")"
 ./create-network.sh

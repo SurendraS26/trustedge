@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# TPM emulator
 docker run -d --rm \
   --name trustedge-c2 \
   --network trustedge-network \
