@@ -15,6 +15,8 @@ def render():
         "╺┻┛╹ ╹┗━┛╹ ╹┗━┛┗━┛╹ ╹╹┗╸╺┻┛",
         "```",
         "",
+        "Trustedge C3 Framework Execution logs.",
+        "",
         "# trustedge-c3",
         "",
         f"_last updated {time.strftime('%H:%M:%S')}_",
