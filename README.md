@@ -38,14 +38,12 @@ Audit dashboard using [`glow`](https://github.com/charmbracelet/glow):
 ```sh
 ./scripts/dashboard.sh
 ```
-> Note: it opens live view in terminal and refreshes on every decision. `q` closes it and `c3` keeps running.
 
 
 Decision Logs JSON:
 ```sh
 <Your-Web-browser> http://localhost:8000/log
 ```
-> Note: `/log` returns the 20 most recent decisions. Use `http://localhost:8000/log?limit=50` for more.
 
 
 System Stats:
