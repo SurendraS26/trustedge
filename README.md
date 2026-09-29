@@ -53,7 +53,11 @@ System Stats:
 ```sh
 ./scripts/<?-view>.sh
 ```
-> Note: `tpm-view.sh` host-side needs `tpm2-tools` and port `2321` from `trustedge-c2`. `gpu-view.sh` needs host `nvidia-smi`. `btop-view` is modern looking top tool for sandbox environment. `q` to quit.
+>`tpm-view.sh` host-side needs `tpm2-tools` and port `2321` from `trustedge-c2`. 
+> <br>
+>`gpu-view.sh` needs host `nvidia-smi` Nvidia GPU's.
+> <br>
+>`btop-view` is modern looking top tool for sandbox environment. `q` to quit.
 
 
 My Workstation Specs
