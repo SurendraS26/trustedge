@@ -48,31 +48,33 @@ Decision Logs JSON:
 > Note: `/log` returns the 20 most recent decisions. Use `http://localhost:8000/log?limit=50` for more.
 
 
-TPM PCR's and GPU view:
+System Stats:
+- TPM PCR live view - `tpm-view`
+- GPU stats - `gpu-view`
+- Btop - `btop-view`
 ```sh
-./scripts/tpm-view.sh
-./scripts/gpu-view.sh
+./scripts/<?-view>.sh
 ```
-> Note: `tpm-view.sh`: host-side, needs `tpm2-tools` + port `2321` from `trustedge-c2`. `gpu-view.sh`: needs host `nvidia-smi`. Both refresh at 0.1s; `Ctrl-C` to quit.
+> Note: `tpm-view.sh` host-side needs `tpm2-tools` and port `2321` from `trustedge-c2`. `gpu-view.sh` needs host `nvidia-smi`. `btop-view` is modern looking top tool for sandbox environment. `q` to quit.
 
 
 My Workstation Specs
 --------------------
 <table>
   <tr><td>OS</td><td>Arch Linux x86_64</td></tr>
-  <tr><td>WM</td><td>Hyprland (Wayland)</td></tr>
+  <tr><td>WM</td><td>Hyprland</td></tr>
   <tr><td>CPU</td><td>Intel Core i7-14700HX (16+12) @ 5.50 GHz</td></tr>
   <tr><td>GPU 1</td><td>NVIDIA GeForce RTX 4060 Max-Q / Mobile</td></tr>
   <tr><td>GPU 2</td><td>Intel Raptor Lake-S UHD Graphics @ 1.60 GHz</td></tr>
   <tr><td>Memory</td><td>15.32 GiB</td></tr>
-  <tr><td>Disk (/)</td><td>937.73 GiB</td></tr>
+  <tr><td>Disk</td><td>937.73 GiB</td></tr>
 </table>
 
 Requirements
 ------------
-- Mistral AI - `mistral:7b` (Optional)
+- LLM - `qwen2.5:7b`
 - Docker Engine + Docker Compose v2
-- Linux host (swtpm's TCP mode and X11 popups are the tested path)
+- TPM2 tools `tpm2-tools` and `nvidia-smi` for Nvidia GPU
 - NVIDIA GPU + NVIDIA Container Toolkit, for GPU-accelerated `c1`
 
 > Warning: Use a GPU for running models.
