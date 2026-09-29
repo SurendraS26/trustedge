@@ -40,11 +40,13 @@ Audit dashboard using [`glow`](https://github.com/charmbracelet/glow):
 ```
 > Note: it opens live view in terminal and refreshes on every decision. `q` closes it and `c3` keeps running.
 
+
 Decision Logs JSON:
 ```sh
 <Your-Web-browser> http://localhost:8000/log
 ```
 > Note: `/log` returns the 20 most recent decisions. Use `http://localhost:8000/log?limit=50` for more.
+
 
 TPM PCR's and GPU view:
 ```sh
@@ -52,6 +54,7 @@ TPM PCR's and GPU view:
 ./scripts/gpu-view.sh
 ```
 > Note: `tpm-view.sh`: host-side, needs `tpm2-tools` + port `2321` from `trustedge-c2`. `gpu-view.sh`: needs host `nvidia-smi`. Both refresh at 0.1s; `Ctrl-C` to quit.
+
 
 My Workstation Specs
 --------------------
