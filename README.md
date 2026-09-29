@@ -44,15 +44,10 @@ Decision Logs JSON:
 <Your-Web-browser> http://localhost:8000/log
 ```
 
-TPM PCR's and GPU live view:
+TPM PCR's and GPU view:
 ```sh
 ./scripts/tpm-view.sh
 ./scripts/gpu-view.sh
-```
-
-Shutdown Trustedge
-```sh
-docker compose down
 ```
 
 
