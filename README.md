@@ -70,7 +70,7 @@ My Workstation Specs
 
 Requirements
 ------------
-- LLM - `qwen2.5:7b`
+- Host Machine - Linux distro's
 - Docker Engine + Docker Compose v2
 - TPM2 tools `tpm2-tools` and `nvidia-smi` for Nvidia GPU
 - NVIDIA GPU + NVIDIA Container Toolkit, for GPU-accelerated `c1`
