@@ -2,7 +2,7 @@ FROM archlinux:latest
 
 RUN pacman -Syu --noconfirm --needed \
         xfce4 xfce4-terminal tigervnc xorg-fonts-misc xorg-xdpyinfo xorg-xauth \
-        chromium dbus git python python-pip noto-fonts sudo inetutils zenity xfce4-appfinder yad btop && \
+        chromium dbus git python python-pip noto-fonts sudo inetutils zenity xfce4-appfinder && \
     rm -rf /var/cache/pacman/pkg/*
 
 RUN pip install --break-system-packages --no-cache-dir websockify fastapi uvicorn
