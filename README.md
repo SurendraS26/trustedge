@@ -49,7 +49,7 @@ Decision Logs JSON:
 System Stats:
 - TPM PCR live view - `tpm-view`
 - GPU stats - `gpu-view`
-- Btop - `btop-view`
+- Top - `top-view`
 ```sh
 ./scripts/<?-view>.sh
 ```
@@ -57,7 +57,7 @@ System Stats:
 > <br>
 >`gpu-view.sh` needs host `nvidia-smi` Nvidia GPU's.
 > <br>
->`btop-view` is modern looking top tool for sandbox environment. `q` to quit.
+>`top-view` is top tool for sandbox environment. `q` to quit.
 
 
 My Workstation Specs
