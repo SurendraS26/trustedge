@@ -61,12 +61,18 @@ System Stats:
 
 Architecture Diagram
 --------------------
-<div align="left">
+<div align="center">
     
 ```mermaid
-graph TD
-    U([User]) --> A[c1 · Agent] --> P{c3 · Policy} --> T{c2 · TPM quote} --> H{Human approval} --> S[c4 · Sandbox]
-    P & T & H -.->|fail / reject| D[Deny]
+graph LR
+    U["User"] --> A["c1 · Agent"]
+    A --> P["c3 · Policy"]
+    P --> T["c2 · TPM quote"]
+    T --> H["Human approval"]
+    H --> S["c4 · Sandbox"]
+    P -.->|fail / reject| D["Deny"]
+    T -.->|fail / reject| D
+    H -.->|fail / reject| D
 ```
 </div>
 
