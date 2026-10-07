@@ -61,22 +61,15 @@ System Stats:
 
 Architecture Diagram
 --------------------
+<div align="center">
 
 ```mermaid
 flowchart LR
-    U([User]) --> A[c1 · AI Agent<br/>Ollama]
-    A --> P{c3 · Policy}
-    P -->|allowed| T{c2 · TPM quote}
-    T -->|verified| H{Human approval}
-    H -->|approved| S[c4 · Sandbox<br/>noVNC :6080]
-
-    P -->|violation| D[Deny]
-    T -->|failed| D
-    H -->|rejected| D
-
-    S -.-> L[(Decision log)]
-    D -.-> L
+    U([User]) --> A[c1 · Agent] --> P{c3 · Policy} --> T{c2 · TPM quote} --> H{Human approval} --> S[c4 · Sandbox]
+    P & T & H -.->|fail / reject| D[Deny]
 ```
+
+</div>
 
 My Workstation Specs
 --------------------
