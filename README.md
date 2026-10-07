@@ -61,15 +61,11 @@ System Stats:
 
 Architecture Diagram
 --------------------
-<div align="center">
-
 ```mermaid
 graph TD
     U([User]) --> A[c1 · Agent] --> P{c3 · Policy} --> T{c2 · TPM quote} --> H{Human approval} --> S[c4 · Sandbox]
     P & T & H -.->|fail / reject| D[Deny]
 ```
-
-</div>
 
 My Workstation Specs
 --------------------
