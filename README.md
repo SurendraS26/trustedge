@@ -59,6 +59,22 @@ System Stats:
 > <br>
 >`top-view` is top tool for sandbox environment. `q` to quit.
 
+Architecture Diagram
+--------------------
+```mermaid
+flowchart LR
+    U([User]) -->|task| A[c1 · AI Agent<br/>Ollama]
+    A -->|proposed action| P{c3 · Policy check}
+    P -->|violates policy| D[Deny]
+    P -->|allowed| T[c2 · TPM quote<br/>swtpm]
+    T -->|attestation fails| D
+    T -->|attestation OK| H{Human approval}
+    H -->|rejected| D
+    H -->|approved| S[c4 · Sandbox desktop<br/>noVNC :6080]
+    P -.-> L[(Decision log<br/>:8000/log)]
+    D -.-> L
+    S -.-> L
+```
 
 My Workstation Specs
 --------------------
