@@ -10,10 +10,10 @@ Usage
 
 Installing TrustEdge Bare/Box Edition
 ```sh
-git clone https://github.com/SurendraS26/trustedge.git
-cd trustedge
-docker compose build
-docker compose up
+> git clone https://github.com/SurendraS26/trustedge.git
+> cd trustedge
+> docker compose build
+> docker compose up
 ```
 > Note: On first run `c1` downloads the model and is stored in the `trustedge-ollama` volume, wait for it to be ready. 
 
@@ -21,7 +21,7 @@ docker compose up
 Launch AI agent in new terminal: 
 
 ```sh
-./scripts/agent.sh
+> ./scripts/agent.sh
 > open chromium and play favourite music on youtube
 ```
 > Note: Run this in a separate terminal window to interact with the agent. `Ctrl-C` only closes the prompt, the containers keep running. Type `q` to quit.
@@ -36,7 +36,7 @@ Sandbox Desktop using [`noVNC`](https://github.com/novnc/noVNC):
 
 Audit dashboard using [`glow`](https://github.com/charmbracelet/glow): 
 ```sh
-./scripts/dashboard.sh
+> ./scripts/dashboard.sh
 ```
 
 
@@ -51,7 +51,7 @@ System Stats:
 - GPU stats - `gpu-view`
 - Top - `top-view`
 ```sh
-./scripts/<?-view>.sh
+> ./scripts/<?-view>.sh
 ```
 >`tpm-view.sh` host-side needs `tpm2-tools` and port `2321` from `trustedge-c2`. 
 > <br>
